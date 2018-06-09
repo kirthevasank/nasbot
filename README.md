@@ -1,3 +1,7 @@
+# nasbot
+
+A Python implementation of NASBOT: Neural Architecture Search with Bayesian Optimisation
+and Optimal Transport.
 
 ### Installation
 
