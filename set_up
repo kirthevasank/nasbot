@@ -1,0 +1,6 @@
+
+# Set HOME_PATH to the current directory
+HOME_PATH=$HOME/projects/Koopmans/nasbot
+PATH=$PATH:$HOME_PATH
+export PYTHONPATH=$HOME_PATH
+
