@@ -5,12 +5,17 @@ and Optimal Transport.
 
 ## Installation
 
-1. Install the following packages packages via pip: cython, POT (Python Optimal Transport),  pygraphviz. pygraphviz is only needed to visualise the networks so it is not necessary to run nasbot. However, some unit tests may fail.```bash
+1. Install the following packages packages via pip: cython, POT (Python Optimal Transport),  pygraphviz. pygraphviz is only needed to visualise the networks so it is not necessary to run nasbot. However, some unit tests may fail.
+```bash
 $ pip install cython POT pygraphviz
 ```
-1. Now set HOME_PATH in the set_up file to the current directory, i.e. `HOME_PATH = <path/to/current/directory>/nasbot`. Then source the set up file. ```bash
+
+2. Now set HOME_PATH in the set_up file to the current directory, i.e. `HOME_PATH = <path/to/current/directory>/nasbot`. Then source the set up file.
+```bash
 $ source set_up
 ```
-1. Next, you need to build the direct fortran library. For this `cd` into `utils/direct_fortran` and run `bash make_direct.sh`. You will need a fortran compiler such as gnu95. Once this is done, you can run `python simple_direct_test.py` to make sure that it was installed correctly.
-1. **Testing the Installation**:
+
+3. Next, you need to build the direct fortran library. For this `cd` into `utils/direct_fortran` and run `bash make_direct.sh`. You will need a fortran compiler such as gnu95. Once this is done, you can run `python simple_direct_test.py` to make sure that it was installed correctly.
+
+4. **Testing the Installation**:
 To test the installation, run ```bash run_all_tests.sh```. Some of the tests are probabilistic and could fail at times. If this happens, run the same test several times and make sure it is not consistently failing.
