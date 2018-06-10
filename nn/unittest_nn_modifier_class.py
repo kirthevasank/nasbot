@@ -15,8 +15,33 @@ from nn import nn_modifiers
 from nn.neural_network import NeuralNetwork
 from nn.nn_visualise import visualise_nn
 from unittest_neural_network import generate_cnn_architectures, generate_mlp_architectures
-from unittest_nn_modifiers import test_if_two_networks_are_equal
 from utils.base_test_class import BaseTestClass, execute_tests
+
+
+def test_if_two_networks_are_equal(net1, net2, false_if_net1_is_net2=True):
+  """ Returns true if both net1 and net2 are equal.
+      If any part of net1 is copied onto net2, then the output will be false
+      if false_if_net1_is_net2 is True (default).
+  """
+  is_true = True
+  for key in net1.__dict__.keys():
+    val1 = net1.__dict__[key]
+    val2 = net2.__dict__[key]
+    is_true = True
+    if isinstance(val1, dict):
+      if false_if_net1_is_net2:
+        is_true = is_true and (val1 is not val2)
+      for val_key in val1.keys():
+        is_true = is_true and np.all(val1[val_key] == val2[val_key])
+    elif hasattr(val1, '__iter__'):
+      if false_if_net1_is_net2:
+        is_true = is_true and (val1 is not val2)
+      is_true = is_true and np.all(val1 == val2)
+    else:
+      is_true = is_true and val1 == val2
+    if not is_true: # break here if necessary
+      return is_true
+  return is_true
 
 
 def test_for_orig_vs_modifications(save_dir, save_prefix, old_nn,

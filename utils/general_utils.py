@@ -47,7 +47,6 @@ def project_symmetric_to_psd_cone(M, is_symmetric=True, epsilon=0):
     try:
       eigvals, eigvecs = np.linalg.eigh(M)
     except np.linalg.LinAlgError:
-      print 'LinAlgError encountered with eigh. Defaulting to eig.'
       eigvals, eigvecs = np.linalg.eig(M)
       eigvals = np.real(eigvals)
       eigvecs = np.real(eigvecs)
@@ -86,7 +85,7 @@ def stable_cholesky(M, add_to_diag_till_psd=True):
         print 'stable_cholesky failed with diag_noise_power=%d.'%(diag_noise_power)
         diag_noise_power += 1
       if diag_noise_power >= 5:
-        print '**************** Cholesky failed: Added diag noise = %e'%(diag_noise)
+        print 'Cholesky failed: Added diag noise = %e'%(diag_noise)
   return L
 
 

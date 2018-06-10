@@ -8,7 +8,7 @@
 
 import numpy as np
 # Local imports
-from e1_syn.syn_nn_functions import syn_func1_common, cnn_syn_func1, mlp_syn_func1
+from nn.syn_nn_functions import syn_func1_common, cnn_syn_func1, mlp_syn_func1
 from nn.nn_examples import generate_cnn_architectures, generate_mlp_architectures
 from nn import nn_gp
 from utils.ancillary_utils import get_list_of_floats_as_str
