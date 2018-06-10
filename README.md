@@ -1,7 +1,12 @@
 # nasbot
 
-A Python implementation of NASBOT: Neural Architecture Search with Bayesian Optimisation
-and Optimal Transport.
+A Python implementation of NASBOT (Neural Architecture Search with Bayesian Optimisation
+and Optimal Transport).
+This repo also implements OTMANN (Optimal Transport Metric for Architectures of Neural
+Networks), which is an optimal transport based distance for neural network architectures.
+For more details, please see our paper below.
+
+For questions and bug reports please email kandasamy@cs.cmu.edu.
 
 ### Installation
 
@@ -10,13 +15,16 @@ and Optimal Transport.
 $ git clone https://github.com/kirthevasank/nasbot.git
 ```
 
-* Install the following packages packages via pip: cython, POT (Python Optimal Transport),  pygraphviz. pygraphviz is only needed to visualise the networks so it is not necessary to run nasbot. However, some unit tests may fail.
+* Install the following packages packages via pip: cython, POT (Python Optimal Transport),
+* pygraphviz. pygraphviz is only needed to visualise the networks and is not necessary to
+run nasbot. However, some unit tests may fail.
 ```bash
 $ pip install cython POT pygraphviz
 ```
   In addition to the above, you will need numpy and scipy which can also be pip installed.
 
-* Now set `HOME_PATH` in the set_up file to the current directory, i.e. `HOME_PATH = <path/to/current/directory>/nasbot`. Then source the set up file.
+* Now set `HOME_PATH` in the set_up file to the current directory, i.e.
+`HOME_PATH=<path/to/current/directory>/nasbot`. Then source the set up file.
 ```bash
 $ source set_up
 ```
@@ -25,6 +33,15 @@ $ source set_up
 
 * **Testing the Installation**:
 To test the installation, run ```bash run_all_tests.sh```. Some of the tests are probabilistic and could fail at times. If this happens, run the same test several times and make sure it is not consistently failing.
+
+### Getting started
+
+
+### Other
+- A neural network is represented as a graph (see paper below) in
+[nn/neural_network.py](https://github.com/kirthevasank/nasbot/blob/master/nn/neural_network.py).
+- OTMANN is implemented in
+[nn/nn_comparators.py](https://github.com/kirthevasank/nasbot/blob/master/nn/nn_comparators.py).
 
 ### Citation
 If you use any part of this code in your work, please cite our

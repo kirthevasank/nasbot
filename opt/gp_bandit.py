@@ -48,7 +48,7 @@ gp_bandit_args = [
   get_option_specs('gp_hp_tune_criterion', False, 'ml',
                    'Which criterion to use when tuning hyper-parameters. Other ' +
                    'options are post_sampling and post_mean.'),
-  get_option_specs('gp_ml_hp_tune_opt', False, 'rand_exp_sampling',
+  get_option_specs('gp_ml_hp_tune_opt', False, 'direct',
                    'Which optimiser to use when maximising the tuning criterion.'),
   ]
 
