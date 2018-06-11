@@ -25,8 +25,8 @@ $ pip install cython POT pygraphviz
 ```
   In addition to the above, you will need numpy and scipy which can also be pip installed.
 
-* Now set `HOME_PATH` in the set_up file to the current directory, i.e.
-`HOME_PATH=<path/to/current/directory>/nasbot`. Then source the set up file.
+* Now set `HOME_PATH` in the set_up file to the parent directory of nasbot, i.e.
+`HOME_PATH=<path/to/parent/directory>/nasbot`. Then source the set up file.
 ```bash
 $ source set_up
 ```
@@ -41,12 +41,19 @@ and make sure it is not consistently failing. Running all tests will take a whil
 ### Getting started
 
 
-### Other
+### Some Details
 - A neural network is represented as a graph (see paper below) in
 [nn/neural_network.py](https://github.com/kirthevasank/nasbot/blob/master/nn/neural_network.py).
-- OTMANN is implemented in
-[nn/nn_comparators.py](https://github.com/kirthevasank/nasbot/blob/master/nn/nn_comparators.py).
+
+
+### OTMANN
+- The OTMANN distance is implemented in
+[nn/nn_comparators.py](https://github.com/kirthevasank/nasbot/blob/master/nn/nn_comparators.py)
 in the class `OTMANNDistanceComputer`.
+- The function `get_default_otmann_distance` will return an object which can be used to
+  evaluate the OTMANN distance with default parameters.
+- You can obtain a customised distance via the function `get_otmann_distance_from_args`.
+
 
 ### Citation
 If you use any part of this code in your work, please cite our

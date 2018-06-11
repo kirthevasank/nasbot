@@ -4,12 +4,11 @@
   -- kandasamy@cs.cmu.edu
 """
 
-# pylint: disable=import-error
 # pylint: disable=invalid-name
-# pylint: disable=relative-import
-# pylint: disable=super-on-old-class
 
 import numpy as np
+# Local
+from opt.domains import NNDomain
 
 
 class NNConstraintChecker(object):
@@ -107,4 +106,19 @@ class MLPConstraintChecker(NNConstraintChecker):
   def _child_constraints_are_satisfied(self):
     """ Checks if the constraints of the child class are satisfied. """
     return ''
+
+
+# An API to return an NN Domain using the constraints -----------------------
+def get_nn_domain_from_constraints(nn_type, *args, **kwargs):
+  """ nn_type is the type of the network.
+      See CNNConstraintChecker, MLPConstraintChecker, NNConstraintChecker constructors
+      for args and kwargs.
+  """
+  if nn_type[:3] == 'cnn':
+    constraint_checker = CNNConstraintChecker(*args, **kwargs)
+  elif nn_type[:3] == 'mlp':
+    constraint_checker = MLPConstraintChecker(*args, **kwargs)
+  else:
+    raise ValueError('Unknown nn_type.')
+  return NNDomain(nn_type, constraint_checker)
 
