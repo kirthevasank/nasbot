@@ -15,14 +15,14 @@ from opt.blackbox_optimiser import blackbox_opt_args
 from opt import gpb_acquisitions
 from nn.nn_gp import nn_gp_args, NNGPFitter
 from nn.nn_modifiers import get_nn_modifier_from_args
-from nn_opt_utils import get_initial_pool
+from opt.nn_opt_utils import get_initial_pool
 from opt.gp_bandit import GPBandit, gp_bandit_args
 from utils.general_utils import block_augment_array
 from utils.reporters import get_reporter
 from utils.option_handler import get_option_specs, load_options
 
-nn_gp_bandit_specific_args = [
-  get_option_specs('nngpb_acq_opt_method', False, 'ga',
+nasbot_specific_args = [
+  get_option_specs('nasbot_acq_opt_method', False, 'ga',
     'Which method to use when optimising the acquisition. Will override acq_opt_method' +
     ' in the arguments for gp_bandit.'),
   get_option_specs('ga_mutation_op_distro', False, 'd0.5-0.25-0.125-0.075-0.05',
@@ -30,36 +30,41 @@ nn_gp_bandit_specific_args = [
     ' in the arguments for gp_bandit.'),
   ]
 
-all_nn_gp_bandit_args = nn_gp_bandit_specific_args + gp_bandit_args + \
+all_nasbot_args = nasbot_specific_args + gp_bandit_args + \
                         blackbox_opt_args + nn_gp_args
-all_nn_random_bandit_args = all_nn_gp_bandit_args
+all_nn_random_bandit_args = all_nasbot_args
 
 # NN GP Bandit Class --------------------------------------------------------------------
-class NNGPBandit(GPBandit):
+class NASBOT(GPBandit):
   """ NN GP Bandit. """
   # pylint: disable=attribute-defined-outside-init
 
   def __init__(self, func_caller, worker_manager, tp_comp,
                options=None, reporter=None):
-    """ Constructor. """
+    """ Constructor.
+        tp_comp: short for transport_distance_computer is a function that computes the
+        otmann distances between two neural networks. Technically, it can be any distance
+        but the rest of the code is implemented so as to pass an otmann distance computer.
+    """
+    # Set initial attributes
+    self.tp_comp = tp_comp
+    print '*************', self.tp_comp
     if options is None:
       reporter = get_reporter(reporter)
-      options = load_options(all_nn_gp_bandit_args, reporter=reporter)
-    super(NNGPBandit, self).__init__(func_caller, worker_manager,
+      options = load_options(all_nasbot_args, reporter=reporter)
+    super(NASBOT, self).__init__(func_caller, worker_manager,
                                      options=options, reporter=reporter)
-    # Set other attributes
-    self.tp_comp = tp_comp
 
   def _child_set_up(self):
     """ Child up. """
     # First override the acquisition optisation method
-    self.options.acq_opt_method = self.options.nngpb_acq_opt_method
+    self.options.acq_opt_method = self.options.nasbot_acq_opt_method
     # No cal the super function
-    super(NNGPBandit, self)._child_set_up()
+    super(NASBOT, self)._child_set_up()
     self.list_of_dists = None
     self.already_evaluated_dists_for = None
     # Create a GP fitter with no data and use its tp_comp as the bandit's tp_comp
-    init_gp_fitter = NNGPFitter([], [], self.domain.get_type(),
+    init_gp_fitter = NNGPFitter([], [], self.domain.get_type(), tp_comp=self.tp_comp,
                                 list_of_dists=None, options=self.options,
                                 reporter=self.reporter)
     self.tp_comp = init_gp_fitter.tp_comp
@@ -103,7 +108,7 @@ class NNGPBandit(GPBandit):
 
   def _get_gp_fitter(self, reg_X, reg_Y):
     """ Builds a NN GP. """
-    return NNGPFitter(reg_X, reg_Y, self.domain.get_type(),
+    return NNGPFitter(reg_X, reg_Y, self.domain.get_type(), tp_comp=self.tp_comp,
                       list_of_dists=self.list_of_dists,
                       options=self.options,
                       reporter=self.reporter)
@@ -143,8 +148,8 @@ class NNGPBandit(GPBandit):
     self.gp.set_data(reg_X, reg_Y, build_posterior=True)
 
 # The random NNGPBandit ------------------------------------------------------------------
-class NNRandomBandit(NNGPBandit):
-  """ RandomNNBandit - uses the same search space as NNGPBandit but picks points randomly.
+class NNRandomBandit(NASBOT):
+  """ RandomNNBandit - uses the same search space as NASBOT but picks points randomly.
   """
 
   def __init__(self, func_caller, worker_manager, options=None, reporter=None):
@@ -207,17 +212,17 @@ class NNRandomBandit(NNGPBandit):
 
 
 # APIs -----------------------------------------------------------------------------------
-def nngpb_from_func_caller(func_caller, worker_manager, tp_comp, max_capital,
+def nasbot_from_func_caller(func_caller, worker_manager, tp_comp, max_capital,
                            mode=None, acq=None, options=None, reporter='default'):
-  """ NNGPBandit optimisation from a function caller. """
+  """ NASBOT optimisation from a function caller. """
   if options is None:
     reporter = get_reporter(reporter)
-    options = load_options(all_nn_gp_bandit_args, reporter=reporter)
+    options = load_options(all_nasbot_args, reporter=reporter)
   if acq is not None:
     options.acq = acq
   if mode is not None:
     options.mode = mode
-  return (NNGPBandit(func_caller, worker_manager, tp_comp,
+  return (NASBOT(func_caller, worker_manager, tp_comp,
           options=options, reporter=reporter)).optimise(max_capital)
 
 def nnrandbandit_from_func_caller(func_caller, worker_manager, max_capital,

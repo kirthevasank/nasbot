@@ -152,7 +152,7 @@ class NNDistanceComputer(object):
     raise NotImplementedError('Implement in a child class.')
 
 
-class TransportNNDistanceComputer(NNDistanceComputer):
+class OTMANNDistanceComputer(NNDistanceComputer):
   """ A distance between neural networks based on solving a transportation problem. """
   #pylint: disable=attribute-defined-outside-init
 
@@ -162,7 +162,7 @@ class TransportNNDistanceComputer(NNDistanceComputer):
                dflt_struct_coeffs=None,
                connectivity_diff_cost_function=DFLT_CONN_COST_FUNC):
     """ Constructor. """
-    super(TransportNNDistanceComputer, self).__init__()
+    super(OTMANNDistanceComputer, self).__init__()
     self.all_layer_labels = all_layer_labels
     self.label_mismatch_penalty = label_mismatch_penalty
     self.non_assignment_penalty = non_assignment_penalty
@@ -348,7 +348,7 @@ class DistSumNNKernel(SumOfExpSumOfDistsKernel):
                                     self.dist_type)
 
 # APIs to return a distance computer or kernel -------------------------------------------
-def get_transportnndistance_from_args(nn_type, non_assignment_penalty,
+def get_otmann_distance_from_args(nn_type, non_assignment_penalty,
                                      connectivity_diff_cost_function=DFLT_CONN_COST_FUNC):
   """ Obtains a transport distance computer from dists. """
   if nn_type.startswith('cnn'):
@@ -361,13 +361,17 @@ def get_transportnndistance_from_args(nn_type, non_assignment_penalty,
                     nn_type[4:])
     struct_penalty_groups = MLP_STRUCTURAL_PENALTY_GROUPS
   # Now create a tp_comp object
-  tp_comp = TransportNNDistanceComputer(all_layer_labels,
+  tp_comp = OTMANNDistanceComputer(all_layer_labels,
               label_mismatch_penalty, non_assignment_penalty,
               struct_penalty_groups, PATH_LENGTH_TYPES,
               connectivity_diff_cost_function=connectivity_diff_cost_function)
   return tp_comp
 
-def generate_transportnnkernel_from_params(
+def get_default_otmann_distance(nn_type, non_assignment_penalty):
+  """ The otmann distance with default parameters. """
+  return get_otmann_distance_from_args(nn_type, non_assignment_penalty)
+
+def generate_otmann_kernel_from_params(
   kernel_type, # The kernel type, should be 'sum' or 'product'
   all_layer_labels, label_mismatch_penalty, # mandatory distance args
   non_assignment_penalty, structural_penalty_groups, path_length_types,
@@ -375,11 +379,11 @@ def generate_transportnnkernel_from_params(
   connectivity_diff_cost_function=DFLT_CONN_COST_FUNC, # optional dist args
   powers=DFLT_KERN_DIST_POWERS, dist_type=DFLT_TRANSPORT_DIST): # optional kernel args
   #pylint: disable=too-many-arguments
-  """ Generates a TransportNNKernel from all parameters for the distance computer
+  """ Generates a OTMANNKernel from all parameters for the distance computer
       and the kernel.
       scales should be a scalar if kernel_type is 'prod' and a list if 'sum'.
   """
-  tp_comp = TransportNNDistanceComputer(all_layer_labels, label_mismatch_penalty,
+  tp_comp = OTMANNDistanceComputer(all_layer_labels, label_mismatch_penalty,
               non_assignment_penalty, structural_penalty_groups, path_length_types,
               connectivity_diff_cost_function=connectivity_diff_cost_function)
   if kernel_type == 'prod':

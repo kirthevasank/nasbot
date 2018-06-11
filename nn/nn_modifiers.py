@@ -13,7 +13,6 @@
 from argparse import Namespace
 from copy import deepcopy
 import numpy as np
-import sys
 # Local imports
 from neural_network import ConvNeuralNetwork, MultiLayerPerceptron, MLP_RECTIFIERS, \
                            MLP_SIGMOIDS, is_a_pooling_layer_label, is_a_conv_layer_label,\
@@ -107,10 +106,7 @@ def get_new_nn(old_nn, layer_labels, num_units_in_each_layer, conn_mat,
                                   old_nn.layer_label_similarities)
     else:
       known_nn_class = False
-  except (CNNImageSizeMismatchException, CNNNoConvAfterIPException,
-          AssertionError) as except_inst:
-    if isinstance(except_inst, AssertionError):
-      print 'Assertion Error!', layer_labels
+  except (CNNImageSizeMismatchException, CNNNoConvAfterIPException, AssertionError):
     return None
   if not known_nn_class:
     raise ValueError('Unidentified nn_class %s.'%(old_nn.nn_class))
@@ -166,8 +162,6 @@ def _determine_num_units_for_wedge_layer(nn, edge):
                              [nn.num_units_in_each_layer[ch] for ch in ip_children])
       if len(children_num_units) == 0:
         # Create a layer with 16 units
-        print 'Encountered parent without determining #-units in wedge_layer::'
-        print nn.layer_labels, nn.num_units_in_each_layer
         children_num_units = [16]
       return sum(children_num_units) / len(children_num_units)
     else:
@@ -456,8 +450,6 @@ def get_list_of_branching_modifiers(nn, num_modifiers=None, **kwargs):
   start_layer_prob = _get_start_layer_probs_for_branching_and_skipping(nn)
   ret = []
   if sum(start_layer_prob) <= 0.0:
-    print ('In get_list_of_branching_modifiers::: ' +
-           'Encountered start_layer_prob = %s. returning empty list.')%(start_layer_prob)
     return ret # return immediately with an empty list
   while len(ret) < num_modifiers:
     start_layer_prob = start_layer_prob / sum(start_layer_prob)
@@ -480,17 +472,6 @@ def create_skipped_network(nn, start_layer, end_layer, pool_layer_type='avg'):
     nn.post_img_inv_sizes[start_layer] == nn.pre_img_inv_sizes[end_layer]:
     conn_mat[start_layer, end_layer] = 1
   else:
-    if nn.post_img_inv_sizes[start_layer] > nn.pre_img_inv_sizes[end_layer]:
-      err = sys.exc_info()[0]
-      from nn_visualise import visualise_nn
-      save_file_visualise = '../scratch/debug/post_img_size_0'
-      visualise_nn(nn, save_file_visualise)
-      print err
-      print nn.post_img_inv_sizes
-      print nn.pre_img_inv_sizes
-      print nn.strides
-      import pdb
-      pdb.set_trace()
     # Determine number of new layers, the number of units and strides in each layer.
     num_new_pool_layers = int(np.log2(nn.pre_img_inv_sizes[end_layer] /
                                       nn.post_img_inv_sizes[start_layer]))
@@ -568,8 +549,6 @@ def get_list_of_skipping_modifiers(nn, num_modifiers=None, **kwargs):
   start_layer_prob[0] = 0.0
   ret = []
   if sum(start_layer_prob) <= 0.0:
-    print ('In get_list_of_skipping_modifiers::: ' +
-           'Encountered start_layer_prob = %s. returning empty list.')%(start_layer_prob)
     return ret # return immediately with an empty list
   for _ in range(max_num_tries):
     start_layer_prob = start_layer_prob / sum(start_layer_prob)
@@ -993,14 +972,7 @@ class NNModifier(object):
         else:
           top_is_of_known_type = False
       except:
-        err = sys.exc_info()[0]
-        from nn_visualise import visualise_nn
-        save_file_visualise = '../scratch/debug/%s_%s'%(top, nn.nn_class)
-        visualise_nn(nn, save_file_visualise)
-        print 'Error occurred when creating modifier %s: '%(top), err, \
-              '. Ignoring and proceeding.'
-        import pdb
-        pdb.set_trace()
+        pass
       if not top_is_of_known_type:
         raise ValueError('All values in types_of_primitives should be in %s. Given %s'%(
                          str(_PRIMITIVE_PROB_MASSES.keys()), top))

@@ -3,7 +3,6 @@
   -- kandasamy@cs.cmu.edu
 """
 
-# pylint: disable=no-member
 # pylint: disable=invalid-name
 # pylint: disable=abstract-class-not-used
 # pylint: disable=arguments-differ
@@ -110,8 +109,9 @@ class NNGP(gp_core.GP):
   def _get_kernel_from_type(cls, kernel_type, nn_type, kernel_hyperparams,
                             tp_comp, dist_type):
     """ Returns the kernel. """
-    if not isinstance(tp_comp, nn_comparators.NNDistanceComputer):
-      tp_comp = nn_comparators.get_transportnndistance_from_args(nn_type,
+    if tp_comp is None:
+#       raise ValueError('Something wrong here!')
+      tp_comp = nn_comparators.get_otmann_distance_from_args(nn_type,
                   kernel_hyperparams['non_assignment_penalty'])
     # Now construct the kernel.
     if kernel_type in ['lpemd_prod', 'lp', 'emd']:
@@ -139,7 +139,7 @@ class NNGPFitter(gp_core.GPFitter):
   """ Fits a GP by tuning the kernel hyper-params. """
   # pylint: disable=attribute-defined-outside-init
 
-  def __init__(self, X, Y, nn_type, list_of_dists=None,
+  def __init__(self, X, Y, nn_type, tp_comp=None, list_of_dists=None,
                options=None, reporter=None, *args, **kwargs):
     """ Constructor. """
     self.X = X
@@ -148,6 +148,7 @@ class NNGPFitter(gp_core.GPFitter):
     self.reporter = get_reporter(reporter)
     self.list_of_dists = list_of_dists
     self.num_data = len(X)
+    self.tp_comp = tp_comp
     if options is None:
       options = load_options(nn_gp_args, 'GPFitter', reporter=reporter)
     super(NNGPFitter, self).__init__(options, *args, **kwargs)
@@ -192,8 +193,9 @@ class NNGPFitter(gp_core.GPFitter):
     # Check if we need to pre-compute distances
     if self.options.choose_mislabel_struct_coeffs == 'use_given' and \
        self.list_of_dists is None:
-      self.tp_comp = nn_comparators.get_transportnndistance_from_args(self.nn_type,
-                                      self.options.non_assignment_penalty)
+      if self.tp_comp is None:
+        self.tp_comp = nn_comparators.get_otmann_distance_from_args(self.nn_type,
+                                        self.options.non_assignment_penalty)
       self.list_of_dists = self.tp_comp(self.X, self.X, self.mislabel_coeffs,
                                         self.struct_coeffs, self.options.dist_type)
     else:

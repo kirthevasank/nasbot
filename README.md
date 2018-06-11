@@ -1,5 +1,7 @@
 # nasbot
 
+** Still updating. Should be ready in a week! **
+
 A Python implementation of NASBOT (Neural Architecture Search with Bayesian Optimisation
 and Optimal Transport).
 This repo also implements OTMANN (Optimal Transport Metric for Architectures of Neural
@@ -32,7 +34,9 @@ $ source set_up
 * Next, you need to build the direct fortran library. For this `cd` into `utils/direct_fortran` and run `bash make_direct.sh`. You will need a fortran compiler such as gnu95. Once this is done, you can run `python simple_direct_test.py` to make sure that it was installed correctly.
 
 * **Testing the Installation**:
-To test the installation, run ```bash run_all_tests.sh```. Some of the tests are probabilistic and could fail at times. If this happens, run the same test several times and make sure it is not consistently failing.
+To test the installation, run ```bash run_all_tests.sh```. Some of the tests are
+probabilistic and could fail at times. If this happens, run the same test several times
+and make sure it is not consistently failing. Running all tests will take a while.
 
 ### Getting started
 
@@ -42,6 +46,7 @@ To test the installation, run ```bash run_all_tests.sh```. Some of the tests are
 [nn/neural_network.py](https://github.com/kirthevasank/nasbot/blob/master/nn/neural_network.py).
 - OTMANN is implemented in
 [nn/nn_comparators.py](https://github.com/kirthevasank/nasbot/blob/master/nn/nn_comparators.py).
+in the class `OTMANNDistanceComputer`.
 
 ### Citation
 If you use any part of this code in your work, please cite our

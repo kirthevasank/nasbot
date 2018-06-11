@@ -11,7 +11,8 @@ import numpy as np
 from utils.ancillary_utils import get_list_of_floats_as_str
 from utils.base_test_class import BaseTestClass, execute_tests
 from nn import nn_comparators
-from unittest_neural_network import generate_cnn_architectures, generate_mlp_architectures
+from nn.unittest_neural_network import generate_cnn_architectures, \
+                                       generate_mlp_architectures
 
 _TOL = 1e-5
 
@@ -25,7 +26,7 @@ class TransportNNDistanceComputerTestCase(BaseTestClass):
     self.non_assignment_penalty = 1
     cnn_layer_labels, label_mismatch_penalty = \
       nn_comparators.get_cnn_layer_label_mismatch_penalties(self.non_assignment_penalty)
-    self.tp_comp = nn_comparators.TransportNNDistanceComputer(cnn_layer_labels,
+    self.tp_comp = nn_comparators.OTMANNDistanceComputer(cnn_layer_labels,
                      label_mismatch_penalty, self.non_assignment_penalty,
                      nn_comparators.CNN_STRUCTURAL_PENALTY_GROUPS,
                      nn_comparators.PATH_LENGTH_TYPES,
@@ -201,7 +202,7 @@ class TransportNNDistanceComputerTestCase(BaseTestClass):
     mlp_layer_labels, label_mismatch_penalty = \
       nn_comparators.get_mlp_layer_label_mismatch_penalties(self.non_assignment_penalty,
                                                             'reg')
-    mlp_tp_comp = nn_comparators.TransportNNDistanceComputer(mlp_layer_labels,
+    mlp_tp_comp = nn_comparators.OTMANNDistanceComputer(mlp_layer_labels,
                      label_mismatch_penalty,
                      self.non_assignment_penalty,
                      nn_comparators.MLP_STRUCTURAL_PENALTY_GROUPS,
@@ -231,7 +232,7 @@ class DistProdNNKernelTestCase(BaseTestClass):
       nn_comparators.get_cnn_layer_label_mismatch_penalties(self.non_assignment_penalty)
     self.all_layer_labels = cnn_layer_labels
     self.label_mismatch_penalty = label_mismatch_penalty
-    self.tp_comp = nn_comparators.TransportNNDistanceComputer(cnn_layer_labels,
+    self.tp_comp = nn_comparators.OTMANNDistanceComputer(cnn_layer_labels,
                      label_mismatch_penalty,
                      self.non_assignment_penalty,
                      nn_comparators.CNN_STRUCTURAL_PENALTY_GROUPS,
@@ -257,7 +258,7 @@ class DistProdNNKernelTestCase(BaseTestClass):
         betas = self.emd_betas
       else:
         betas = [j for i in zip(self.lp_betas, self.emd_betas) for j in i]
-      tp_kernel = nn_comparators.generate_transportnnkernel_from_params('prod',
+      tp_kernel = nn_comparators.generate_otmann_kernel_from_params('prod',
                     self.all_layer_labels, self.label_mismatch_penalty,
                     self.non_assignment_penalty,
                     nn_comparators.CNN_STRUCTURAL_PENALTY_GROUPS,
@@ -287,13 +288,13 @@ class DistProdNNKernelTestCase(BaseTestClass):
     scale = 2.1
     struct_coeffs = 1.0
     mislabel_coeffs = 1.0
-    tp_comp = nn_comparators.TransportNNDistanceComputer(self.all_layer_labels,
+    tp_comp = nn_comparators.OTMANNDistanceComputer(self.all_layer_labels,
                 self.label_mismatch_penalty, self.non_assignment_penalty,
                 nn_comparators.CNN_STRUCTURAL_PENALTY_GROUPS,
                 nn_comparators.PATH_LENGTH_TYPES,
                 dflt_mislabel_coeffs=mislabel_coeffs,
                 dflt_struct_coeffs=struct_coeffs)
-    tp_kernel = nn_comparators.generate_transportnnkernel_from_params('prod',
+    tp_kernel = nn_comparators.generate_otmann_kernel_from_params('prod',
                 self.all_layer_labels, self.label_mismatch_penalty,
                 self.non_assignment_penalty, nn_comparators.CNN_STRUCTURAL_PENALTY_GROUPS,
                 nn_comparators.PATH_LENGTH_TYPES,
@@ -317,7 +318,7 @@ class DistSumNNKernelTestCase(BaseTestClass):
                                                             'reg')
     self.all_layer_labels = mlp_layer_labels
     self.label_mismatch_penalty = label_mismatch_penalty
-    self.tp_comp = nn_comparators.TransportNNDistanceComputer(mlp_layer_labels,
+    self.tp_comp = nn_comparators.OTMANNDistanceComputer(mlp_layer_labels,
                      label_mismatch_penalty,
                      self.non_assignment_penalty,
                      nn_comparators.MLP_STRUCTURAL_PENALTY_GROUPS,
@@ -345,7 +346,7 @@ class DistSumNNKernelTestCase(BaseTestClass):
       else:
         betas = [j for i in zip(self.lp_betas, self.emd_betas) for j in i]
         scales = [1, 1]
-      tp_kernel = nn_comparators.generate_transportnnkernel_from_params('sum',
+      tp_kernel = nn_comparators.generate_otmann_kernel_from_params('sum',
                     self.all_layer_labels, self.label_mismatch_penalty,
                     self.non_assignment_penalty,
                     nn_comparators.MLP_STRUCTURAL_PENALTY_GROUPS,
@@ -379,14 +380,14 @@ class DistSumNNKernelTestCase(BaseTestClass):
       elif dist_type == 'emd':
         betas = self.emd_betas
         scales = [1]
-      sum_kernel = nn_comparators.generate_transportnnkernel_from_params('sum',
+      sum_kernel = nn_comparators.generate_otmann_kernel_from_params('sum',
                      self.all_layer_labels, self.label_mismatch_penalty,
                      self.non_assignment_penalty,
                      nn_comparators.MLP_STRUCTURAL_PENALTY_GROUPS,
                      nn_comparators.PATH_LENGTH_TYPES,
                      self.mislabel_coeffs, self.struct_coeffs, betas,
                      scales, dist_type=dist_type)
-      prod_kernel = nn_comparators.generate_transportnnkernel_from_params('prod',
+      prod_kernel = nn_comparators.generate_otmann_kernel_from_params('prod',
                       self.all_layer_labels, self.label_mismatch_penalty,
                       self.non_assignment_penalty,
                       nn_comparators.MLP_STRUCTURAL_PENALTY_GROUPS,
