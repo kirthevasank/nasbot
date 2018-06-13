@@ -73,11 +73,6 @@ class NNGP(gp_core.GP):
         calling build_posterior from the super class.
     """
     if self.list_of_dists is not None:
-      if self.list_of_dists[0].shape != (len(self.X), len(self.Y)):
-        print 'Sizes not same!!!! : ', self.list_of_dists[0].shape, \
-                                       (len(self.X), len(self.Y))
-        import pdb
-        pdb.set_trace()
       assert self.list_of_dists[0].shape == (len(self.X), len(self.Y))
     super(NNGP, self).build_posterior()
 

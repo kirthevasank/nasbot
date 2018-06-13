@@ -64,37 +64,37 @@ class NASBOTTestCase(BaseTestClass):
     func_caller = FunctionCaller(cnn_syn_func1, self.cnn_domain)
     tp_comp = get_tp_comp('cnn')
     options, options_clone, reporter, _, _ = self._get_optimiser_args('cnn')
-    opt_val, opt_pt, history = nasbot.nasbot_from_func_caller(
-      func_caller, worker_manager, tp_comp, 10, 'asy', 'ei',
+    opt_val, opt_pt, history = nasbot.nasbot(
+      func_caller, worker_manager, 10, tp_comp, 'asy', None, 'ei',
       options=options, reporter=reporter)
     self._test_optimiser_results(opt_val, opt_pt, history, options, options_clone)
     self.report('')
 
-#   def test_nasbot_optimisation_asynchronous(self):
-#     """ Tests optimisation of a single point. """
-#     self.report('Testing NASBOT with 4 asynchronous workers.')
-#     worker_manager = SyntheticWorkerManager(4, time_distro='halfnormal')
-#     func_caller = FunctionCaller(mlp_syn_func1, self.mlp_domain)
-#     tp_comp = get_tp_comp('mlp-reg')
-#     options, options_clone, reporter, _, _ = self._get_optimiser_args('mlp-reg')
-#     opt_val, opt_pt, history = nasbot.nasbot_from_func_caller(
-#       func_caller, worker_manager, tp_comp, 5, 'asy', 'hei',
-#       options=options, reporter=reporter)
-#     self._test_optimiser_results(opt_val, opt_pt, history, options, options_clone)
-#     self.report('')
-# 
-#   def test_nasbot_optimisation_synchronous(self):
-#     """ Tests optimisation of a single point. """
-#     self.report('Testing NASBOT with 4 synchronous workers.')
-#     worker_manager = SyntheticWorkerManager(4, time_distro='halfnormal')
-#     func_caller = FunctionCaller(cnn_syn_func1, self.cnn_domain)
-#     tp_comp = get_tp_comp('cnn')
-#     options, options_clone, reporter, _, _ = self._get_optimiser_args('cnn')
-#     opt_val, opt_pt, history = nasbot.nasbot_from_func_caller(
-#       func_caller, worker_manager, tp_comp, 5, 'syn', 'hei',
-#       options=options, reporter=reporter)
-#     self._test_optimiser_results(opt_val, opt_pt, history, options, options_clone)
-#     self.report('')
+  def test_nasbot_optimisation_asynchronous(self):
+    """ Tests optimisation of a single point. """
+    self.report('Testing NASBOT with 4 asynchronous workers.')
+    worker_manager = SyntheticWorkerManager(4, time_distro='halfnormal')
+    func_caller = FunctionCaller(mlp_syn_func1, self.mlp_domain)
+    tp_comp = get_tp_comp('mlp-reg')
+    options, options_clone, reporter, _, _ = self._get_optimiser_args('mlp-reg')
+    opt_val, opt_pt, history = nasbot.nasbot(
+      func_caller, worker_manager, tp_comp, 5, 'asy', 'hei',
+      options=options, reporter=reporter)
+    self._test_optimiser_results(opt_val, opt_pt, history, options, options_clone)
+    self.report('')
+
+  def test_nasbot_optimisation_synchronous(self):
+    """ Tests optimisation of a single point. """
+    self.report('Testing NASBOT with 4 synchronous workers.')
+    worker_manager = SyntheticWorkerManager(4, time_distro='halfnormal')
+    func_caller = FunctionCaller(cnn_syn_func1, self.cnn_domain)
+    tp_comp = get_tp_comp('cnn')
+    options, options_clone, reporter, _, _ = self._get_optimiser_args('cnn')
+    opt_val, opt_pt, history = nasbot.nasbot(
+      func_caller, worker_manager, tp_comp, 5, 'syn', 'hei',
+      options=options, reporter=reporter)
+    self._test_optimiser_results(opt_val, opt_pt, history, options, options_clone)
+    self.report('')
 
 
 if __name__ == '__main__':

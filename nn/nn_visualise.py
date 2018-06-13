@@ -106,7 +106,7 @@ def _get_edges(conn_mat):
   return [_get_edge(starts[i], ends[i]) for i in range(len(starts))]
 
 # Main API ------------------------------------------------------------------------------
-def visualise_nn(nn, save_file_prefix, fig_label=None, for_pres=False):
+def visualise_nn(nn, save_file_prefix, fig_label=None, for_pres=True):
   """ The main API which will be used to visualise the network. """
   # First create nodes in the order
   nodes = [_get_layer(i, nn, for_pres) for i in range(nn.num_layers)]

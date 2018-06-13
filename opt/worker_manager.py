@@ -257,7 +257,6 @@ class RealWorkerManager(WorkerManager):
         result = read_in
         break
       except:
-        print 'Encountered error when reading %s. Trying again.'%(result_file_name)
         time.sleep(self.poll_time)
         file_reader.close()
         result = EVAL_ERROR_CODE

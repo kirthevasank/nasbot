@@ -15,6 +15,7 @@ from opt.blackbox_optimiser import blackbox_opt_args
 from opt import gpb_acquisitions
 from nn.nn_gp import nn_gp_args, NNGPFitter
 from nn.nn_modifiers import get_nn_modifier_from_args
+from nn.nn_comparators import get_default_otmann_distance
 from opt.nn_opt_utils import get_initial_pool
 from opt.gp_bandit import GPBandit, gp_bandit_args
 from utils.general_utils import block_augment_array
@@ -48,7 +49,7 @@ class NASBOT(GPBandit):
     """
     # Set initial attributes
     self.tp_comp = tp_comp
-    print '*************', self.tp_comp
+#     print '*************', self.tp_comp
     if options is None:
       reporter = get_reporter(reporter)
       options = load_options(all_nasbot_args, reporter=reporter)
@@ -212,19 +213,6 @@ class NNRandomBandit(NASBOT):
 
 
 # APIs -----------------------------------------------------------------------------------
-def nasbot_from_func_caller(func_caller, worker_manager, tp_comp, max_capital,
-                           mode=None, acq=None, options=None, reporter='default'):
-  """ NASBOT optimisation from a function caller. """
-  if options is None:
-    reporter = get_reporter(reporter)
-    options = load_options(all_nasbot_args, reporter=reporter)
-  if acq is not None:
-    options.acq = acq
-  if mode is not None:
-    options.mode = mode
-  return (NASBOT(func_caller, worker_manager, tp_comp,
-          options=options, reporter=reporter)).optimise(max_capital)
-
 def nnrandbandit_from_func_caller(func_caller, worker_manager, max_capital,
                                   mode=None, options=None, reporter='default'):
   """ NNRandomBandit optimisation from a function caller. """
@@ -236,4 +224,25 @@ def nnrandbandit_from_func_caller(func_caller, worker_manager, max_capital,
   options.acq = 'randnn'
   return (NNRandomBandit(func_caller, worker_manager, options=options,
                          reporter=reporter)).optimise(max_capital)
+
+def nasbot(func_caller, worker_manager, budget, tp_comp=None,
+           mode=None, init_pool=None, acq=None, options=None, reporter='default'):
+  """ NASBOT optimisation from a function caller. """
+  nn_type = func_caller.domain.nn_type
+  if options is None:
+    reporter = get_reporter(reporter)
+    options = load_options(all_nasbot_args, reporter=reporter)
+  if acq is not None:
+    options.acq = acq
+  if mode is not None:
+    options.mode = mode
+  if tp_comp is None:
+    tp_comp = get_default_otmann_distance(nn_type, 1.0)
+  # Initial queries
+  if not hasattr(options, 'pre_eval_points') or options.pre_eval_points is None:
+    if init_pool is None:
+      init_pool = get_initial_pool(nn_type)
+    options.get_initial_points = lambda n: init_pool[:n]
+  return (NASBOT(func_caller, worker_manager, tp_comp,
+          options=options, reporter=reporter)).optimise(budget)
 

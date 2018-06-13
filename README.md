@@ -39,6 +39,7 @@ probabilistic and could fail at times. If this happens, run the same test severa
 and make sure it is not consistently failing. Running all tests will take a while.
 
 ### Getting started
+We have some demos in the demos directory.
 
 
 ### Some Details

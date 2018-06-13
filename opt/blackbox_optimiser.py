@@ -198,10 +198,13 @@ class BlackboxOptimiser(object):
     if num_init_evals > 0:
       num_init_evals = max(self.num_workers, num_init_evals)
       init_points = self.options.get_initial_points(num_init_evals)
+      self.reporter.write('Initialising with %d points ... '%(len(init_points)))
       for init_step in range(len(init_points)):
         self.step_idx += 1
         self._wait_for_a_free_worker()
         self._dispatch_single_evaluation_to_worker_manager(init_points[init_step])
+      self._wait_for_all_free_workers()
+      self.reporter.writeln('best initial value = %0.4f.'%(self.curr_opt_val))
 
   def initialise_capital(self):
     """ Initialises capital. """
@@ -523,31 +526,4 @@ def random_optimise_from_args(func_caller, worker_manager, max_capital,
     options.mode = mode
   return (RandomOptimiser(func_caller, worker_manager, options, reporter)).optimise(
             max_capital)
-
-
-## APIs for optimisation ============================================================
-
-# # 1. Optimisation from Method, func_caller and worker_manager =======================
-# def optimise_with_method_on_func_caller(method, func_caller, worker_manager,
-#                                         max_capital,
-#                                         options=None, reporter='default'):
-#   """ A wrapper that can be used to call all optimisation method. """
-#   if options is None:
-#     reporter = get_reporter(reporter)
-#     options = load_options(random_opt_args, reporter=reporter)
-#
-#   # The mode should be specified in the first three letters of the method argument
-#   options.mode = method[0:3]
-#
-#   if method in ['synRAND', 'asyRAND']:
-#     return random_optimiser_from_func_caller(func_caller, worker_manager, max_capital,
-#                                              options=options, reporter=reporter)
-#   elif method in ['asyTS', 'synTS', 'asyHTS', 'asyUCB', 'asyBUCB', 'synBUCB',
-#                   'synUCBPE', 'asyEI']:
-#     from gp_bandit import gpb_from_func_caller
-#     options.acq = method[3:]
-#     return gpb_from_func_caller(func_caller, worker_manager, max_capital,
-#                                 options=options, reporter='default')
-#   else:
-#     raise ValueError('Unknown method %s!'%(method))
 
