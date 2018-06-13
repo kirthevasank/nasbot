@@ -1,0 +1,83 @@
+"""
+  A demo of NASBOT on a MLP (Multi-Layer Perceptron) architecture search problem.
+  -- kandasamy@cs.cmu.edu
+"""
+
+from argparse import Namespace
+import numpy as np
+# Local
+from nn.nn_constraint_checkers import get_nn_domain_from_constraints
+from nn.nn_visualise import visualise_nn
+from opt import nasbot
+from demos.mlp_function_caller import MLPFunctionCaller
+from opt.worker_manager import RealWorkerManager
+
+# Data
+# The data should be in a pickle file stored as a dictionary. The 'train' key
+# should point to the training data while 'vali' points to the validation data.
+# In both cases
+# For example, after data = pic.load(file_name), data['train']['x'] should point
+# to the features of the training data.
+# The slice and indoor_location datasets are available at
+# http://www.cs.cmu.edu/~kkandasa/research.html as examples. Put them in the demos
+# directory to run the demo.
+DATASET = 'slice'
+# DATASET = 'indoor'
+
+# Search space
+MAX_NUM_LAYERS = 50 # The maximum number of layers
+MIN_NUM_LAYERS = 5 # The minimum number of layers
+MAX_MASS = np.inf # Mass is the total amount of computation at all layers
+MIN_MASS = 0
+MAX_IN_DEGREE = 5 # Maximum in degree of each layer
+MAX_OUT_DEGREE = 55 # Maximum out degree of each layer
+MAX_NUM_EDGES = 200 # Maximum number of edges in the network
+MAX_NUM_UNITS_PER_LAYER = 1024 # Maximum number of computational units ...
+MIN_NUM_UNITS_PER_LAYER = 8    # ... (neurons/conv-filters) per layer.
+
+# Which GPU IDs are available
+GPU_IDS = [0, 1]
+
+# Function to return the name of the file containing dataset
+def get_train_file_name(dataset):
+  """ Return train params. """
+  # get file name
+  if dataset == 'slice':
+    train_pickle_file = 'SliceLocalization.p'
+  elif dataset == 'indoor':
+    train_pickle_file = 'IndoorLoc.p'
+  return train_pickle_file
+
+def main():
+  """ Main function. """
+  # Obtain the search space
+  nn_domain = get_nn_domain_from_constraints('cnn', MAX_NUM_LAYERS, MIN_NUM_LAYERS,
+                MAX_MASS, MIN_MASS, MAX_IN_DEGREE, MAX_OUT_DEGREE, MAX_NUM_EDGES,
+                MAX_NUM_UNITS_PER_LAYER, MIN_NUM_UNITS_PER_LAYER)
+  # Obtain a worker manager: A worker manager (defined in opt/worker_manager.py) is used
+  # to manage (possibly) multiple workers.
+  worker_manager = RealWorkerManager(GPU_IDS)
+  # Obtain a function caller: A function_caller is used to evaluate a function defined on
+  # neural network architectures. We have defined the MLPFunctionCaller in
+  # demos/mlp_function_caller.py. The train_params can be used to specify additional
+  # training parameters such as the learning rate etc.
+  train_params = Namespace(data_train_file=get_train_file_name(DATASET))
+  func_caller = MLPFunctionCaller(DATASET, nn_domain, train_params)
+  # Finally, specify the budget. For a RealWorkerManager, this is in wall clock seconds.
+  budget = 2 * 60 * 60 # in seconds
+
+  # Run nasbot
+  opt_val, opt_nn, _ = nasbot.nasbot(func_caller, worker_manager, budget)
+
+  # Print the optimal value and visualise the best network.
+  print '\nOptimum value found: ', opt_val
+  print 'Optimal network visualised in mlp_opt_network.eps.'
+  visualise_nn(opt_nn, 'mlp_opt_network')
+
+  # N.B: See function nasbot and class NASBOT in opt/nasbot.py to customise additional
+  # parameters of the algorithm.
+
+
+if __name__ == '__main__':
+  main()
+

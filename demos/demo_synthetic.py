@@ -47,8 +47,8 @@ def main():
 
   # Print the optimal value and visualise the best network.
   print '\nOptimum value found: ', opt_val
-  print 'Optimal network visualised in demo_syn_opt_network.eps.'
-  visualise_nn(opt_nn, 'demo_syn_opt_network')
+  print 'Optimal network visualised in syn_opt_network.eps.'
+  visualise_nn(opt_nn, 'syn_opt_network')
 
   # N.B: See function nasbot and class NASBOT in opt/nasbot.py to customise additional
   # parameters of the algorithm.

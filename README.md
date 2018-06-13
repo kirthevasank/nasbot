@@ -32,12 +32,12 @@ $ source set_up
 * Next, you need to build the direct fortran library. For this `cd` into `utils/direct_fortran` and run `bash make_direct.sh`. You will need a fortran compiler such as gnu95. Once this is done, you can run `python simple_direct_test.py` to make sure that it was installed correctly.
 The default version of NASBOT can be run without direct, but some unit tests might fail.
 
-* Finally, you need to install tensorflow to execute the methods (on GPUs).
+* Finally, you need to install tensorflow to execute the MLP/CNN demos on GPUs.
 ```bash
 $ pip install tensorflow-gpu
 ```
 
-* **Testing the Installation**:
+**Testing the Installation**:
 To test the installation, run ```bash run_all_tests.sh```. Some of the tests are
 probabilistic and could fail at times. If this happens, run the same test several times
 and make sure it is not consistently failing. Running all tests will take a while.
@@ -60,9 +60,7 @@ demonstrate NASBOT on MLP and CNN hyper-parameter tuning tasks respectively.
 The MLP datasets can be downloaded from the
 [author's homepage](http://www.cs.cmu.edu/~kkandasa/research.html),
 while the Cifar10 dataset for the CNN demo is available
-[here](https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz).
-
-
+[here](https://www.cs.toronto.edu/~kriz/cifar.html).
 To run the MLP/CNN demos, you will need access to one or more GPUs and install
 tensorflow, e.g. `pip install tensorflow-gpu`.
 
