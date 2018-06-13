@@ -39,12 +39,27 @@ probabilistic and could fail at times. If this happens, run the same test severa
 and make sure it is not consistently failing. Running all tests will take a while.
 
 ### Getting started
-We have some demos in the demos directory.
+
+To help get started, we have some demos in the `demos` directory.
+To run NASBOT, at the very least, you need to specify a) a search space, 
+b) the function to be optimised, and c) the number of parallel workers.
+The demos show you how to do that.
+`demos/demo_synthetic.py` runs nasbot on a synthetic function.
+
+To run the MLP/CNN demos, you will need to have access to one or more GPUs and install
+tensorflow, e.g. `pip install tensorflow-gpu`.
 
 
 ### Some Details
 - A neural network is represented as a graph (see paper below) in
-[nn/neural_network.py](https://github.com/kirthevasank/nasbot/blob/master/nn/neural_network.py).
+[`nn/neural_network.py`](https://github.com/kirthevasank/nasbot/blob/master/nn/neural_network.py).
+- The `cg` directory converts this graphical representation into a tensorflow
+  implementation. We have not yet (and do not have immediate plans to)
+  implemented other frameworks (e.g. PyTorch, Keras). However, if you have implemented it
+  and are willing to share it, we would happy to include a reference here and/or
+  incorporate it as part of this repo.
+- We have tested this on Linux and Mac on Python 2.
+  We are in the process of making this Python 3 compatible.
 
 
 ### OTMANN
