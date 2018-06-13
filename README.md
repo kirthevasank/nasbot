@@ -2,7 +2,7 @@
 
 A Python implementation of NASBOT (Neural Architecture Search with Bayesian Optimisation
 and Optimal Transport).
-This repo also implements OTMANN (Optimal Transport Metric for Architectures of Neural
+This repo also provides OTMANN (Optimal Transport Metric for Architectures of Neural
 Networks), which is an optimal transport based distance for neural network architectures.
 For more details, please see our paper below.
 
@@ -32,6 +32,11 @@ $ source set_up
 * Next, you need to build the direct fortran library. For this `cd` into `utils/direct_fortran` and run `bash make_direct.sh`. You will need a fortran compiler such as gnu95. Once this is done, you can run `python simple_direct_test.py` to make sure that it was installed correctly.
 The default version of NASBOT can be run without direct, but some unit tests might fail.
 
+* Finally, you need to install tensorflow to execute the methods (on GPUs).
+```bash
+$ pip install tensorflow-gpu
+```
+
 * **Testing the Installation**:
 To test the installation, run ```bash run_all_tests.sh```. Some of the tests are
 probabilistic and could fail at times. If this happens, run the same test several times
@@ -52,23 +57,16 @@ demonstrates NASBOT on a synthetic function while
 and
 [`demos/demo_cnn.py`](https://github.com/kirthevasank/nasbot/blob/master/demos/demo_cnn.py)
 demonstrate NASBOT on MLP and CNN hyper-parameter tuning tasks respectively.
+The MLP datasets can be downloaded from the
+[author's homepage](http://www.cs.cmu.edu/~kkandasa/research.html),
+while the Cifar10 dataset for the CNN demo is available
+[here](https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz).
+
+
 To run the MLP/CNN demos, you will need access to one or more GPUs and install
 tensorflow, e.g. `pip install tensorflow-gpu`.
 
-**N.B:** The MLP/CNN demos will be released in a few days.
-
-
-### Some Details
-- A neural network is represented as a graph (see paper below) in
-[`nn/neural_network.py`](https://github.com/kirthevasank/nasbot/blob/master/nn/neural_network.py).
-- The [`cg`](https://github.com/kirthevasank/nasbot/blob/master/nn/cg).
-  directory converts this graphical representation into a tensorflow
-  implementation. We have not yet (and do not have immediate plans to)
-  implemented other frameworks (e.g. PyTorch, Keras). However, if you have implemented it
-  and are willing to share it, we would happy to include a reference here and/or
-  incorporate it as part of this repo.
-- We have tested this on Linux and Mac on Python 2.
-  We are in the process of making this Python 3 compatible.
+**N.B:** The CNN demos will be released in a few days.
 
 
 ### OTMANN
@@ -78,6 +76,21 @@ in the class `OTMANNDistanceComputer`.
 - The function `get_default_otmann_distance` will return an object which can be used to
   evaluate the OTMANN distance with default parameters.
 - You can obtain a customised distance via the function `get_otmann_distance_from_args`.
+
+
+### Some Details
+- A neural network is represented as a graph (see paper below) in
+[`nn/neural_network.py`](https://github.com/kirthevasank/nasbot/blob/master/nn/neural_network.py).
+- The [`cg`](https://github.com/kirthevasank/nasbot/blob/master/nn/cg)
+  directory converts this graphical representation into a tensorflow
+  implementation. We have not yet (and do not have immediate plans to)
+  implemented other frameworks (e.g. PyTorch, Keras). However, if you have implemented it
+  and are willing to share it, we would happy to include a reference here and/or
+  incorporate it as part of this repo.
+- We have tested this on Linux and Mac on Python 2.
+  We are in the process of making this Python 3 compatible.
+- If you want to change any part of the method, the unit tests in each directory provide
+  a decent guide on running/modifying various components.
 
 
 ### Citation
