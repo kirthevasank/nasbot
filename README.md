@@ -1,7 +1,5 @@
 # nasbot
 
-** Still updating. Should be ready in a week! **
-
 A Python implementation of NASBOT (Neural Architecture Search with Bayesian Optimisation
 and Optimal Transport).
 This repo also implements OTMANN (Optimal Transport Metric for Architectures of Neural
@@ -18,7 +16,7 @@ $ git clone https://github.com/kirthevasank/nasbot.git
 ```
 
 * Install the following packages packages via pip: cython, POT (Python Optimal Transport),
-* pygraphviz. pygraphviz is only needed to visualise the networks and is not necessary to
+pygraphviz. pygraphviz is only needed to visualise the networks and is not necessary to
 run nasbot. However, some unit tests may fail.
 ```bash
 $ pip install cython POT pygraphviz
@@ -32,6 +30,7 @@ $ source set_up
 ```
 
 * Next, you need to build the direct fortran library. For this `cd` into `utils/direct_fortran` and run `bash make_direct.sh`. You will need a fortran compiler such as gnu95. Once this is done, you can run `python simple_direct_test.py` to make sure that it was installed correctly.
+The default version of NASBOT can be run without direct, but some unit tests might fail.
 
 * **Testing the Installation**:
 To test the installation, run ```bash run_all_tests.sh```. Some of the tests are
@@ -41,19 +40,29 @@ and make sure it is not consistently failing. Running all tests will take a whil
 ### Getting started
 
 To help get started, we have some demos in the `demos` directory.
-To run NASBOT, at the very least, you need to specify a) a search space, 
-b) the function to be optimised, and c) the number of parallel workers.
-The demos show you how to do that.
-`demos/demo_synthetic.py` runs nasbot on a synthetic function.
+They demonstrate how to specify a) a search space, 
+b) the function to be optimised, and c) the number of parallel workers for NASBOT - these
+are the bare minimum that need to specified.
+Other parameters can be tuned via the APIs available in
+[`opt/nasbot.py`](https://github.com/kirthevasank/nasbot/blob/master/opt/nasbot.py).
 
-To run the MLP/CNN demos, you will need to have access to one or more GPUs and install
+[`demos/demo_synthetic.py`](https://github.com/kirthevasank/nasbot/blob/master/demos/demo_synthetic.py)
+demonstrates NASBOT on a synthetic function while
+[`demos/demo_mlp.py`](https://github.com/kirthevasank/nasbot/blob/master/demos/demo_mlp.py)
+and
+[`demos/demo_cnn.py`](https://github.com/kirthevasank/nasbot/blob/master/demos/demo_cnn.py)
+demonstrate NASBOT on MLP and CNN hyper-parameter tuning tasks respectively.
+To run the MLP/CNN demos, you will need access to one or more GPUs and install
 tensorflow, e.g. `pip install tensorflow-gpu`.
+
+**N.B:** The MLP/CNN demos will be released in a few days.
 
 
 ### Some Details
 - A neural network is represented as a graph (see paper below) in
 [`nn/neural_network.py`](https://github.com/kirthevasank/nasbot/blob/master/nn/neural_network.py).
-- The `cg` directory converts this graphical representation into a tensorflow
+- The [`cg`](https://github.com/kirthevasank/nasbot/blob/master/nn/cg).
+  directory converts this graphical representation into a tensorflow
   implementation. We have not yet (and do not have immediate plans to)
   implemented other frameworks (e.g. PyTorch, Keras). However, if you have implemented it
   and are willing to share it, we would happy to include a reference here and/or
@@ -64,7 +73,7 @@ tensorflow, e.g. `pip install tensorflow-gpu`.
 
 ### OTMANN
 - The OTMANN distance is implemented in
-[nn/nn_comparators.py](https://github.com/kirthevasank/nasbot/blob/master/nn/nn_comparators.py)
+[`nn/nn_comparators.py`](https://github.com/kirthevasank/nasbot/blob/master/nn/nn_comparators.py)
 in the class `OTMANNDistanceComputer`.
 - The function `get_default_otmann_distance` will return an object which can be used to
   evaluate the OTMANN distance with default parameters.
