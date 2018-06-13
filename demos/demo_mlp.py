@@ -51,7 +51,7 @@ def get_train_file_name(dataset):
 def main():
   """ Main function. """
   # Obtain the search space
-  nn_domain = get_nn_domain_from_constraints('cnn', MAX_NUM_LAYERS, MIN_NUM_LAYERS,
+  nn_domain = get_nn_domain_from_constraints('mlp-reg', MAX_NUM_LAYERS, MIN_NUM_LAYERS,
                 MAX_MASS, MIN_MASS, MAX_IN_DEGREE, MAX_OUT_DEGREE, MAX_NUM_EDGES,
                 MAX_NUM_UNITS_PER_LAYER, MIN_NUM_UNITS_PER_LAYER)
   # Obtain a worker manager: A worker manager (defined in opt/worker_manager.py) is used
