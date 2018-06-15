@@ -16,10 +16,10 @@ $ git clone https://github.com/kirthevasank/nasbot.git
 ```
 
 * Install the following packages packages via pip: cython, POT (Python Optimal Transport),
-pygraphviz. pygraphviz is only needed to visualise the networks and is not necessary to
-run nasbot. However, some unit tests may fail.
+graphviz and pygraphviz. graphviz and pygraphviz are only needed to visualise the networks
+and are not necessary to run nasbot. However, some unit tests may fail.
 ```bash
-$ pip install cython POT pygraphviz
+$ pip install cython POT graphviz pygraphviz
 ```
   In addition to the above, you will need numpy and scipy which can also be pip installed.
 

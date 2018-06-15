@@ -226,7 +226,7 @@ def nnrandbandit_from_func_caller(func_caller, worker_manager, max_capital,
                          reporter=reporter)).optimise(max_capital)
 
 def nasbot(func_caller, worker_manager, budget, tp_comp=None,
-           mode=None, init_pool=None, acq=None, options=None, reporter='default'):
+           mode=None, init_pool=None, acq='hei', options=None, reporter='default'):
   """ NASBOT optimisation from a function caller. """
   nn_type = func_caller.domain.nn_type
   if options is None:

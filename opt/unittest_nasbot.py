@@ -65,7 +65,7 @@ class NASBOTTestCase(BaseTestClass):
     tp_comp = get_tp_comp('cnn')
     options, options_clone, reporter, _, _ = self._get_optimiser_args('cnn')
     opt_val, opt_pt, history = nasbot.nasbot(
-      func_caller, worker_manager, 10, tp_comp, 'asy', None, 'ei',
+      func_caller, worker_manager, 10, tp_comp,
       options=options, reporter=reporter)
     self._test_optimiser_results(opt_val, opt_pt, history, options, options_clone)
     self.report('')
@@ -78,7 +78,7 @@ class NASBOTTestCase(BaseTestClass):
     tp_comp = get_tp_comp('mlp-reg')
     options, options_clone, reporter, _, _ = self._get_optimiser_args('mlp-reg')
     opt_val, opt_pt, history = nasbot.nasbot(
-      func_caller, worker_manager, tp_comp, 5, 'asy', 'hei',
+      func_caller, worker_manager, 5, tp_comp,
       options=options, reporter=reporter)
     self._test_optimiser_results(opt_val, opt_pt, history, options, options_clone)
     self.report('')
@@ -91,7 +91,7 @@ class NASBOTTestCase(BaseTestClass):
     tp_comp = get_tp_comp('cnn')
     options, options_clone, reporter, _, _ = self._get_optimiser_args('cnn')
     opt_val, opt_pt, history = nasbot.nasbot(
-      func_caller, worker_manager, tp_comp, 5, 'syn', 'hei',
+      func_caller, worker_manager, 5, tp_comp, 5,
       options=options, reporter=reporter)
     self._test_optimiser_results(opt_val, opt_pt, history, options, options_clone)
     self.report('')
