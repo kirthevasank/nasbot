@@ -91,7 +91,7 @@ class NASBOTTestCase(BaseTestClass):
     tp_comp = get_tp_comp('cnn')
     options, options_clone, reporter, _, _ = self._get_optimiser_args('cnn')
     opt_val, opt_pt, history = nasbot.nasbot(
-      func_caller, worker_manager, 5, tp_comp, 5,
+      func_caller, worker_manager, 5, tp_comp,
       options=options, reporter=reporter)
     self._test_optimiser_results(opt_val, opt_pt, history, options, options_clone)
     self.report('')
