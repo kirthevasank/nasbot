@@ -8,7 +8,7 @@ do
   cd $dir
   for uf in unittest_*.py
   do 
-    echo Testing $uf %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    echo Testing $uf %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     python $uf
   done
   cd ../

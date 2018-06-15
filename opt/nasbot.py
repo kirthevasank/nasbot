@@ -148,7 +148,7 @@ class NASBOT(GPBandit):
     self.gp.set_list_of_dists(self.list_of_dists)
     self.gp.set_data(reg_X, reg_Y, build_posterior=True)
 
-# The random NNGPBandit ------------------------------------------------------------------
+# The random searcher ------------------------------------------------------------------
 class NNRandomBandit(NASBOT):
   """ RandomNNBandit - uses the same search space as NASBOT but picks points randomly.
   """
