@@ -11,6 +11,7 @@ from nn.nn_visualise import visualise_nn
 from opt import nasbot
 from demos.mlp_function_caller import MLPFunctionCaller
 from opt.worker_manager import RealWorkerManager
+from utils.reporters import get_reporter
 
 # Data
 # The data should be in a pickle file stored as a dictionary. The 'train' key
@@ -21,8 +22,8 @@ from opt.worker_manager import RealWorkerManager
 # The slice and indoor_location datasets are available at
 # http://www.cs.cmu.edu/~kkandasa/research.html as examples. Put them in the demos
 # directory to run the demo.
-DATASET = 'slice'
-# DATASET = 'indoor'
+# DATASET = 'slice'
+DATASET = 'indoor'
 
 # Search space
 MAX_NUM_LAYERS = 50 # The maximum number of layers
@@ -36,7 +37,8 @@ MAX_NUM_UNITS_PER_LAYER = 1024 # Maximum number of computational units ...
 MIN_NUM_UNITS_PER_LAYER = 8    # ... (neurons/conv-filters) per layer.
 
 # Which GPU IDs are available
-GPU_IDS = [0, 1]
+# GPU_IDS = [0, 1]
+GPU_IDS = [2, 3]
 
 # Function to return the name of the file containing dataset
 def get_train_file_name(dataset):
@@ -48,6 +50,13 @@ def get_train_file_name(dataset):
     train_pickle_file = 'IndoorLoc.p'
   return train_pickle_file
 
+# Specify the budget (in seconds)
+BUDGET = 2 * 60 * 60
+
+# Obtain a reporter object
+# REPORTER = get_reporter('default') # Writes results to stdout
+REPORTER = get_reporter(open('log_mlp', 'w')) # Writes to file log_mlp
+
 def main():
   """ Main function. """
   # Obtain the search space
@@ -55,23 +64,23 @@ def main():
                 MAX_MASS, MIN_MASS, MAX_IN_DEGREE, MAX_OUT_DEGREE, MAX_NUM_EDGES,
                 MAX_NUM_UNITS_PER_LAYER, MIN_NUM_UNITS_PER_LAYER)
   # Obtain a worker manager: A worker manager (defined in opt/worker_manager.py) is used
-  # to manage (possibly) multiple workers.
+  # to manage (possibly) multiple workers. For a RealWorkerManager, the budget should be
+  # given in wall clock seconds.
   worker_manager = RealWorkerManager(GPU_IDS)
   # Obtain a function caller: A function_caller is used to evaluate a function defined on
   # neural network architectures. We have defined the MLPFunctionCaller in
   # demos/mlp_function_caller.py. The train_params can be used to specify additional
   # training parameters such as the learning rate etc.
   train_params = Namespace(data_train_file=get_train_file_name(DATASET))
-  func_caller = MLPFunctionCaller(DATASET, nn_domain, train_params)
-  # Finally, specify the budget. For a RealWorkerManager, this is in wall clock seconds.
-  budget = 2 * 60 * 60 # in seconds
+  func_caller = MLPFunctionCaller(DATASET, nn_domain, train_params, reporter=REPORTER)
 
   # Run nasbot
-  opt_val, opt_nn, _ = nasbot.nasbot(func_caller, worker_manager, budget)
+  opt_val, opt_nn, _ = nasbot.nasbot(func_caller, worker_manager, BUDGET,
+                                     reporter=REPORTER)
 
   # Print the optimal value and visualise the best network.
-  print '\nOptimum value found: ', opt_val
-  print 'Optimal network visualised in mlp_opt_network.eps.'
+  reporter.writeln('\nOptimum value found: '%(opt_val))
+  reporter.writeln('Optimal network visualised in mlp_opt_network.eps.')
   visualise_nn(opt_nn, 'mlp_opt_network')
 
   # N.B: See function nasbot and class NASBOT in opt/nasbot.py to customise additional

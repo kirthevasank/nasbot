@@ -41,6 +41,7 @@ $ pip install tensorflow-gpu
 To test the installation, run ```bash run_all_tests.sh```. Some of the tests are
 probabilistic and could fail at times. If this happens, run the same test several times
 and make sure it is not consistently failing. Running all tests will take a while.
+You can run each unit test individually simpy via `python unittest_xxx.py`.
 
 ### Getting started
 

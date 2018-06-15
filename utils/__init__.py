@@ -1,4 +1,4 @@
 """
-  Utilities
+  Utilities.
   -- kandasamy@cs.cmu.edu
 """

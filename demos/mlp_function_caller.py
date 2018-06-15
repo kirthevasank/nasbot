@@ -52,13 +52,12 @@ class MLPFunctionCaller(NNFunctionCaller):
       self.train_params.tf_params = deepcopy(self.train_params.tf_params)
       self.train_params.tf_params['num_classes'] = self.data_train['y'].shape[1]
 
-  def _eval_validation_score(self, nn, qinfo, _):
+  def _eval_validation_score(self, nn, qinfo, noisy=False):
     """ Evaluates the validation score. """
     # pylint: disable=bare-except
     os.environ['CUDA_VISIBLE_DEVICES'] = str(qinfo.worker_id)
     num_tries = 0
     succ_eval = False
-    self.reporter.writeln('Evaluating %s on GPU %d.'%(nn, qinfo.worker_id))
     while num_tries < _MAX_TRIES and not succ_eval:
       try:
         vali_error = cg.run_tensorflow.compute_validation_error(nn, self.data_train,

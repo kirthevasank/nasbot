@@ -1,5 +1,5 @@
 """
-  A Harness for creating and using various kinds of GPs.
+  A Harness for creating and using GPs for inference.
   -- kandasamy@cs.cmu.edu
 """
 
