@@ -49,7 +49,6 @@ class NASBOT(GPBandit):
     """
     # Set initial attributes
     self.tp_comp = tp_comp
-#     print '*************', self.tp_comp
     if options is None:
       reporter = get_reporter(reporter)
       options = load_options(all_nasbot_args, reporter=reporter)

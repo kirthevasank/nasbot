@@ -149,7 +149,7 @@ class NNGPTestCase(BaseTestClass):
     succ_frac = num_successes / float(num_tests)
     self.report('Summary: num_successes / num_floats = %d/%d = %0.4f'%(num_successes,
                 num_tests, succ_frac), 'test_result')
-    assert succ_frac > 0.6
+    assert succ_frac > 0.5
 
   def test_hallucinated_predictions(self):
     """ Testing hallucinated predictions for NNGP. """
@@ -253,7 +253,7 @@ class NNGPFitterTestCase(BaseTestClass):
                 num_naive_err_successes, num_tests, naive_err_frac), 'test_result')
     assert num_lml_successes == num_tests
     assert const_err_frac >= 0.5
-    assert naive_err_frac >= 0.5
+    assert naive_err_frac >= 0.3
 
 
 if __name__ == '__main__':

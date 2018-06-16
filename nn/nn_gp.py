@@ -30,7 +30,7 @@ nn_gp_specific_args = [
     'Should you compute the kernel from pairwise distances whenever possible.'),
   get_option_specs('mislabel_coeffs', False, '1.0-1.0-1.0-1.0',
     'The mislabel coefficients specified as a string. If -1, it means we will tune.'),
-  get_option_specs('struct_coeffs', False, '0.1-0.2-0.4-0.8',
+  get_option_specs('struct_coeffs', False, '0.1-0.25-0.61-1.5',
     'The struct coefficients specified as a string. If -1, it means we will tune.'),
   get_option_specs('lp_power', False, 1,
     'The powers to use in the LP distance for the kernel.'),
@@ -105,7 +105,6 @@ class NNGP(gp_core.GP):
                             tp_comp, dist_type):
     """ Returns the kernel. """
     if tp_comp is None:
-#       raise ValueError('Something wrong here!')
       tp_comp = nn_comparators.get_otmann_distance_from_args(nn_type,
                   kernel_hyperparams['non_assignment_penalty'])
     # Now construct the kernel.
@@ -193,8 +192,6 @@ class NNGPFitter(gp_core.GPFitter):
                                         self.options.non_assignment_penalty)
       self.list_of_dists = self.tp_comp(self.X, self.X, self.mislabel_coeffs,
                                         self.struct_coeffs, self.options.dist_type)
-    else:
-      self.tp_comp = None
     # Some parameters we will be using often
     if len(self.Y) > 1:
       self.Y_var = self.Y.std() ** 2
