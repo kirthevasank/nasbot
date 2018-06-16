@@ -31,7 +31,9 @@ $ source set_up
 
 * Next, you need to build the direct fortran library. For this `cd` into
 [`utils/direct_fortran`](https://github.com/kirthevasank/nasbot/blob/master/utils/direct_fortran)
-and run `bash make_direct.sh`. You will need a fortran compiler such as gnu95. Once this is done, you can run `python simple_direct_test.py` to make sure that it was installed correctly.
+and run `bash make_direct.sh`. You will need a fortran compiler such as gnu95.
+Once this is done, you can run `python simple_direct_test.py` to make sure that it was
+installed correctly.
 The default version of NASBOT can be run without direct, but some unit tests might fail.
 
 * Finally, you need to install tensorflow to execute the MLP/CNN demos on GPUs.
@@ -102,10 +104,11 @@ in the class `OTMANNDistanceComputer`.
   implemented other frameworks (e.g. PyTorch, Keras). However, if you have implemented it
   and are willing to share it, we would happy to include a reference here and/or
   incorporate it as part of this repo.
-- We have tested this on Linux and Mac on Python 2.
-  We are in the process of making this Python 3 compatible.
 - If you want to change any part of the method, the unit tests in each directory provide
   a decent guide on running/modifying various components.
+- We have tested this repo on Linux and Mac on Python 2.
+  We are in the process of making this Python 3 compatible.
+  We have not tested on Windows.
 
 
 ### Citation
