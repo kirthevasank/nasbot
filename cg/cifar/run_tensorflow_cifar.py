@@ -13,8 +13,8 @@ import functools
 import os
 import argparse
 import tensorflow as tf
-import cifar.cifar10_myMain as cifar10_myMain
-import cifar.cifar10 as cifar10
+import cg.cifar.cifar10_myMain as cifar10_myMain
+import cg.cifar.cifar10 as cifar10
 from opt.nn_opt_utils import get_initial_pool
 
 
