@@ -76,6 +76,9 @@ You should implement the method `_eval_validation_score(nn, qinfo)` in this clas
 evaluates a network `nn` and returns the validation score.
 NASBOT will *maximise* this score - hence, (for example) you can return the accuracy
 for classification problems and the negative MSE for regression problems.
+The `qinfo` argument is used to pass other ancillary information that may be required to
+conduct the evaluation (e.g. GPU ID).
+
 You can follow the examples in 
 [`demos/mlp_function_caller.py`](https://github.com/kirthevasank/nasbot/blob/master/demos/mlp_function_caller.py)
 and [`demos/cnn_function_caller.py`](https://github.com/kirthevasank/nasbot/blob/master/demos/cnn_function_caller.py)
