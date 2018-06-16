@@ -26,7 +26,7 @@ from utils.reporters import get_reporter
 DATASET = 'indoor'
 
 # Search space
-MAX_NUM_LAYERS = 50 # The maximum number of layers
+MAX_NUM_LAYERS = 60 # The maximum number of layers
 MIN_NUM_LAYERS = 5 # The minimum number of layers
 MAX_MASS = np.inf # Mass is the total amount of computation at all layers
 MIN_MASS = 0
@@ -79,8 +79,8 @@ def main():
                                      reporter=REPORTER)
 
   # Print the optimal value and visualise the best network.
-  reporter.writeln('\nOptimum value found: '%(opt_val))
-  reporter.writeln('Optimal network visualised in mlp_opt_network.eps.')
+  REPORTER.writeln('\nOptimum value found: '%(opt_val))
+  REPORTER.writeln('Optimal network visualised in mlp_opt_network.eps.')
   visualise_nn(opt_nn, 'mlp_opt_network')
 
   # N.B: See function nasbot and class NASBOT in opt/nasbot.py to customise additional

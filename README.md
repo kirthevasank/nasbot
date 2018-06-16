@@ -29,7 +29,9 @@ $ pip install cython POT graphviz pygraphviz
 $ source set_up
 ```
 
-* Next, you need to build the direct fortran library. For this `cd` into `utils/direct_fortran` and run `bash make_direct.sh`. You will need a fortran compiler such as gnu95. Once this is done, you can run `python simple_direct_test.py` to make sure that it was installed correctly.
+* Next, you need to build the direct fortran library. For this `cd` into
+[`utils/direct_fortran`](https://github.com/kirthevasank/nasbot/blob/master/utils/direct_fortran)
+and run `bash make_direct.sh`. You will need a fortran compiler such as gnu95. Once this is done, you can run `python simple_direct_test.py` to make sure that it was installed correctly.
 The default version of NASBOT can be run without direct, but some unit tests might fail.
 
 * Finally, you need to install tensorflow to execute the MLP/CNN demos on GPUs.
@@ -58,14 +60,25 @@ demonstrates NASBOT on a synthetic function while
 and
 [`demos/demo_cnn.py`](https://github.com/kirthevasank/nasbot/blob/master/demos/demo_cnn.py)
 demonstrate NASBOT on MLP and CNN hyper-parameter tuning tasks respectively.
-The MLP datasets can be downloaded from the
-[author's homepage](http://www.cs.cmu.edu/~kkandasa/research.html),
-while the Cifar10 dataset for the CNN demo is available
-[here](https://www.cs.toronto.edu/~kriz/cifar.html).
+The datasets can be downloaded from the
+[author's homepage](http://www.cs.cmu.edu/~kkandasa/research.html).
+There are some instructions in the demo files on preparing/saving the data files.
 To run the MLP/CNN demos, you will need access to one or more GPUs and install
 tensorflow, e.g. `pip install tensorflow-gpu`.
 
-**N.B:** The CNN demos will be released in a few days.
+
+### Using NASBOT in your architecture search task
+
+To use NASBOT in your architecture search task, you need to write a FunctionCaller class
+which inherits the `NNFunctionCaller` class in 
+[`opt/nn_function_caller.py`](https://github.com/kirthevasank/nasbot/blob/master/opt/nn_function_caller.py).
+You should implement the method `_eval_validation_score(nn, qinfo)` in this class which
+evaluates a network `nn` and returns the validation score.
+NASBOT will *maximise* this score - hence, (for example) you can return the accuracy
+for classification problems and the negative MSE for regression problems.
+You can follow the examples in 
+[`demos/mlp_function_caller.py`](https://github.com/kirthevasank/nasbot/blob/master/demos/mlp_function_caller.py)
+and [`demos/cnn_function_caller.py`](https://github.com/kirthevasank/nasbot/blob/master/demos/cnn_function_caller.py)
 
 
 ### OTMANN

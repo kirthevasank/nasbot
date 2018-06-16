@@ -1,5 +1,6 @@
 """
   Function caller for the MLP experiments.
+  -- willie@cs.cmu.edu
   -- kandasamy@cs.cmu.edu
 """
 
@@ -41,10 +42,10 @@ class MLPFunctionCaller(NNFunctionCaller):
     self.reporter.writeln('Loaded data: ' + self.train_params.data_train_file)
     self.reporter.writeln('Training data shape: ' + 'x: ' +
                           str(self.data_train['x'].shape) +
-                          ', ' + 'y: '+str(self.data_train['y'].shape))
+                          ', ' + 'y: ' + str(self.data_train['y'].shape))
     self.reporter.writeln('Validation data shape: ' + 'x: ' +
                           str(self.data_vali['x'].shape) +
-                          ', ' + 'y: '+str(self.data_vali['y'].shape))
+                          ', ' + 'y: ' + str(self.data_vali['y'].shape))
     # Check tf_params
     if not hasattr(self.train_params, 'tf_params'):
       self.train_params.tf_params = get_default_mlp_tf_params()
@@ -55,12 +56,13 @@ class MLPFunctionCaller(NNFunctionCaller):
   def _eval_validation_score(self, nn, qinfo, noisy=False):
     """ Evaluates the validation score. """
     # pylint: disable=bare-except
+    # pylint: disable=unused-argument
     os.environ['CUDA_VISIBLE_DEVICES'] = str(qinfo.worker_id)
     num_tries = 0
     succ_eval = False
     while num_tries < _MAX_TRIES and not succ_eval:
       try:
-        vali_error = cg.run_tensorflow.compute_validation_error(nn, self.data_train,
+        vali_score = cg.run_tensorflow.compute_validation_error(nn, self.data_train,
                        self.data_vali, 0, self.train_params.tf_params)
         succ_eval = True
       except:
@@ -68,5 +70,5 @@ class MLPFunctionCaller(NNFunctionCaller):
         num_tries += 1
         self.reporter.writeln('********* Failed on try %d with gpu %d.'%(
                               num_tries, qinfo.worker_id))
-    return vali_error
+    return vali_score
 
