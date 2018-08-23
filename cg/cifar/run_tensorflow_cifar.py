@@ -23,7 +23,7 @@ os.environ['TF_SYNC_ON_FINISH'] = '0'
 os.environ['TF_ENABLE_WINOGRAD_NONFUSED'] = '1'
 
 
-def compute_validation_error(nn,data_dir,gpu_id,params):
+def compute_validation_error(nn,data_dir,gpu_id,params,tmp_dir):
   """ Trains tensorflow neural network and then computes validation error. """
 
   # Fixed variables for CIFAR10 CNN runs
@@ -49,7 +49,7 @@ def compute_validation_error(nn,data_dir,gpu_id,params):
   model_fn = cifar10_myMain.get_model_fn(num_gpus, variable_strategy, 1, nn)
   
   # Set model = tf.estimator.Estimator(model_fn)
-  model = tf.estimator.Estimator(model_fn,params=hparams)
+  model = tf.estimator.Estimator(model_fn, model_dir=tmp_dir, params=hparams)
 
   # Define train_input_fn and vali_input_fn
   train_input_fn = functools.partial(

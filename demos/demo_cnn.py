@@ -38,6 +38,9 @@ MIN_NUM_UNITS_PER_LAYER = 8    # ... (neurons/conv-filters) per layer.
 # Which GPU IDs are available
 GPU_IDS = [0, 1]
 
+# Where to store temporary model checkpoints (can get larger than capacity of /tmp on auton),
+TMP_DIR = '/tmp'
+
 # Specify the budget (in seconds)
 BUDGET = 12 * 60 * 60
 
@@ -60,7 +63,8 @@ def main():
   # demos/cnn_function_caller.py. The train_params argument can be used to specify
   # additional training parameters such as the learning rate etc.
   train_params = Namespace(data_dir='cifar-10-data')
-  func_caller = CNNFunctionCaller('cifar10', nn_domain, train_params, reporter=REPORTER)
+  func_caller = CNNFunctionCaller('cifar10', nn_domain, train_params,
+                                  tmp_dir=TMP_DIR, reporter=REPORTER)
 
   # Run nasbot
   opt_val, opt_nn, _ = nasbot.nasbot(func_caller, worker_manager, BUDGET,
