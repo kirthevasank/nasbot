@@ -63,7 +63,7 @@ class MLPFunctionCaller(NNFunctionCaller):
     while num_tries < _MAX_TRIES and not succ_eval:
       try:
         vali_score = cg.run_tensorflow.compute_validation_error(nn, self.data_train,
-                       self.data_vali, 0, self.train_params.tf_params)
+                       self.data_vali, 0, self.train_params.tf_params, self.tmp_dir)
         succ_eval = True
       except:
         sleep(_SLEEP_BETWEEN_TRIES_SECS)

@@ -10,6 +10,7 @@ from time import sleep
 # Local
 from opt.nn_function_caller import NNFunctionCaller
 from cg.cifar import run_tensorflow_cifar
+import traceback
 
 _MAX_TRIES = 3
 _SLEEP_BETWEEN_TRIES_SECS = 3
@@ -48,12 +49,14 @@ class CNNFunctionCaller(NNFunctionCaller):
     while num_tries < _MAX_TRIES and not succ_eval:
       try:
         vali_error = run_tensorflow_cifar.compute_validation_error(nn, self.data_file_str,
-                      0, self.train_params.tf_params)
+                      0, self.train_params.tf_params, self.tmp_dir)
         succ_eval = True
         sleep(_SLEEP_BETWEEN_TRIES_SECS)
       except:
         num_tries += 1
         self.reporter.writeln('********* Failed on try %d with gpu %d.'%(
                               num_tries, qinfo.worker_id))
+        traceback.print_exc()
+        traceback.print_exc(file=self.reporter.out)
     return vali_error
 

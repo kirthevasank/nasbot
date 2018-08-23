@@ -40,6 +40,9 @@ MIN_NUM_UNITS_PER_LAYER = 8    # ... (neurons/conv-filters) per layer.
 # GPU_IDS = [0, 1]
 GPU_IDS = [2, 3]
 
+# Where to store temporary model checkpoints (can get larger than capacity of /tmp on auton),
+TMP_DIR = '/tmp'
+
 # Function to return the name of the file containing dataset
 def get_train_file_name(dataset):
   """ Return train params. """
@@ -72,7 +75,8 @@ def main():
   # demos/mlp_function_caller.py. The train_params can be used to specify additional
   # training parameters such as the learning rate etc.
   train_params = Namespace(data_train_file=get_train_file_name(DATASET))
-  func_caller = MLPFunctionCaller(DATASET, nn_domain, train_params, reporter=REPORTER)
+  func_caller = MLPFunctionCaller(DATASET, nn_domain, train_params,
+                                  reporter=REPORTER, tmp_dir=TMP_DIR)
 
   # Run nasbot
   opt_val, opt_nn, _ = nasbot.nasbot(func_caller, worker_manager, BUDGET,

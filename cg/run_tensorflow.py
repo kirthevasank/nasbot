@@ -126,7 +126,7 @@ def get_model_fn(nn,learningRate,num_classes=None):
   return ret
 
 
-def compute_validation_error(mlp,data_train,data_vali,gpu_id,params):
+def compute_validation_error(mlp,data_train,data_vali,gpu_id,params, tmp_dir):
   """ Trains tensorflow neural network and then computes validation error. """
 
   # Check if num_classes exists
@@ -136,7 +136,7 @@ def compute_validation_error(mlp,data_train,data_vali,gpu_id,params):
       num_classes = None;
 
   model_fn = get_model_fn(mlp,params['learningRate'],num_classes)
-  model = tf.estimator.Estimator(model_fn)
+  model = tf.estimator.Estimator(model_fn, model_dir=tmp_dir)
   deviceStr = '/gpu:'+str(gpu_id)
   #deviceStr = '/cpu:'+str(gpu_id)
 

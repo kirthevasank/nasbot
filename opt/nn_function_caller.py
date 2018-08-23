@@ -15,6 +15,7 @@ from time import time, sleep
 # Local imports
 from opt.function_caller import FunctionCaller, EVAL_ERROR_CODE
 from utils.reporters import get_reporter
+import tempfile
 
 _DEBUG_ERROR_PROB = 0.1
 # _DEBUG_ERROR_PROB = 0.0
@@ -24,7 +25,7 @@ class NNFunctionCaller(FunctionCaller):
   """ Function Caller for NN evaluations. """
 
   def __init__(self, descr, domain, train_params, debug_mode=False,
-               debug_function=None, reporter=None):
+               debug_function=None, reporter=None, tmp_dir='/tmp'):
     """ Constructor for train params. """
     super(NNFunctionCaller, self).__init__(None, domain,
                                            opt_pt=None, opt_val=None,
@@ -37,6 +38,7 @@ class NNFunctionCaller(FunctionCaller):
     self.train_params = train_params
     self.debug_mode = debug_mode
     self.reporter = get_reporter(reporter)
+    self.root_tmp_dir = tmp_dir
 
   def eval_single(self, nn, qinfo, noisy=False):
     """ Over-rides eval_single. """
@@ -58,6 +60,7 @@ class NNFunctionCaller(FunctionCaller):
       ret = self._eval_synthetic_function(nn, qinfo)
     else:
       try:
+        self.tmp_dir = tempfile.mkdtemp(dir=self.root_tmp_dir)
         ret = self._eval_validation_score(nn, qinfo)
       except Exception as exc:
         self.reporter.writeln('Exception when evaluating %s: %s'%(nn, exc))
@@ -67,17 +70,10 @@ class NNFunctionCaller(FunctionCaller):
     qinfo.true_val = qinfo.val
     qinfo.point = nn
     self._write_result_to_file(ret, qinfo.result_file)
-    # Remove all the temporary directories created by TF
-    for tmp_dir in glob('tmp*'):
-      try:
-        shutil.rmtree(tmp_dir)
-      except:
-        pass
-    for tmp_dir in glob('/tmp/tmp*'):
-      try:
-        shutil.rmtree(tmp_dir)
-      except:
-        pass
+    try:
+      shutil.rmtree(self.tmp_dir)
+    except:
+      pass
     return ret
 
   def _eval_synthetic_function(self, nn, qinfo):
