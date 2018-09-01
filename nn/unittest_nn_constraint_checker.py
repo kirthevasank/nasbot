@@ -5,6 +5,7 @@
 
 # pylint: disable=no-member
 # pylint: disable=invalid-name
+# pylint: disable=relative-import
 
 # Local imports
 from nn import nn_constraint_checkers
@@ -20,32 +21,38 @@ class NNConstraintCheckerTestCase(BaseTestClass):
     super(NNConstraintCheckerTestCase, self).__init__(*args, **kwargs)
     self.nns = generate_cnn_architectures() + generate_mlp_architectures()
     self.cnn_constraint_checker = nn_constraint_checkers.CNNConstraintChecker(
-      25, 5, 5000, 0, 5, 2, 15, 512, 16)
+      25, 5, 500000, 0, 5, 2, 15, 512, 16, 4)
     self.mlp_constraint_checker = nn_constraint_checkers.MLPConstraintChecker(
-      25, 5, 5000, 900, 5, 2, 15, 30, 8)
+      25, 5, 500000, 900, 5, 2, 15, 30, 8)
 
   def test_constraint_checker(self):
     """ Tests if the constraints are satisfied for each network. """
-    self.report(('Testing constraint checker with max_num_layers=%d, max_mass=%d,' +
-      'max_out_deg=%d, max_in_deg=%d, max_num_edges=%d.')%(
-      self.cnn_constraint_checker.max_num_layers,
-      self.cnn_constraint_checker.max_mass,
-      self.cnn_constraint_checker.max_in_degree,
-      self.cnn_constraint_checker.max_out_degree,
-      self.cnn_constraint_checker.max_num_edges
-      ))
+    report_str = ('Testing constraint checker: max_layers=%d, max_mass=%d,' +
+                  'max_out_deg=%d, max_in_deg=%d, max_edges=%d, max_2stride=%d.')%(
+                  self.cnn_constraint_checker.max_num_layers,
+                  self.cnn_constraint_checker.max_mass,
+                  self.cnn_constraint_checker.max_in_degree,
+                  self.cnn_constraint_checker.max_out_degree,
+                  self.cnn_constraint_checker.max_num_edges,
+                  self.cnn_constraint_checker.max_num_2strides,
+                  )
+    self.report(report_str)
     for nn in self.nns:
       if nn.nn_class == 'cnn':
         violation = self.cnn_constraint_checker(nn, True)
         constrain_satisfied = self.cnn_constraint_checker(nn)
+        img_inv_sizes = [piis for piis in nn.post_img_inv_sizes if piis != 'x']
+        nn_class_str = ', max_inv_size=%d '%(max(img_inv_sizes))
       else:
         violation = self.mlp_constraint_checker(nn, True)
         constrain_satisfied = self.mlp_constraint_checker(nn)
-      self.report(('%s: #layers: %d, mass: %d, max_out_deg: %d, max_in_deg: %d, ' +
-                   '#edges:%d ::: %s, %s')%(
+        nn_class_str = ' '
+      self.report(('%s: #layers:%d, mass:%d, max_outdeg:%d, max_indeg:%d, ' +
+                   '#edges:%d%s:: %s, %s')%(
                    nn.nn_class, len(nn.layer_labels), nn.get_total_mass(),
                    nn.get_out_degrees().max(), nn.get_in_degrees().max(),
-                   nn.conn_mat.sum(), str(constrain_satisfied), violation), 'test_result')
+                   nn.conn_mat.sum(), nn_class_str, str(constrain_satisfied), violation),
+                   'test_result')
       assert (constrain_satisfied and violation == '') or \
              (not constrain_satisfied and violation != '')
 

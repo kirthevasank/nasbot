@@ -5,6 +5,7 @@
 """
 
 # pylint: disable=invalid-name
+# pylint: disable=too-many-arguments
 
 import numpy as np
 # Local
@@ -60,7 +61,7 @@ class NNConstraintChecker(object):
                               self.min_num_units_per_layer):
       violation = 'min_units_per_layer_not_exceeded'
     else:
-      violation = self._child_constraints_are_satisfied()
+      violation = self._child_constraints_are_satisfied(nn)
     return violation if return_violation else (violation == '')
 
   @classmethod
@@ -73,7 +74,7 @@ class NNConstraintChecker(object):
     """ Returns true if bound is None or if value is greater than or equal to bound. """
     return bound is None or (value >= bound)
 
-  def _child_constraints_are_satisfied(self):
+  def _child_constraints_are_satisfied(self, nn):
     """ Checks if the constraints of the child class are satisfied. """
     raise NotImplementedError('Implement in a child class.')
 
@@ -87,13 +88,29 @@ class NNConstraintChecker(object):
 class CNNConstraintChecker(NNConstraintChecker):
   """ A class for checking if a CNN satisfies constraints. """
 
-  def __init__(self, *args, **kwargs):
-    """ Constructor. """
-    super(CNNConstraintChecker, self).__init__(*args, **kwargs)
+  def __init__(self, max_num_layers, min_num_layers, max_mass, min_mass,
+               max_in_degree, max_out_degree, max_num_edges,
+               max_num_units_per_layer, min_num_units_per_layer,
+               max_num_2strides=None):
+    """ Constructor.
+      max_num_2strides is the maximum number of 2-strides (either via pooling or conv
+      operations) that the image can go through in the network.
+    """
+    super(CNNConstraintChecker, self).__init__(
+      max_num_layers, min_num_layers, max_mass, min_mass,
+      max_in_degree, max_out_degree, max_num_edges,
+      max_num_units_per_layer, min_num_units_per_layer)
+    self.max_num_2strides = max_num_2strides
 
-  def _child_constraints_are_satisfied(self):
+  def _child_constraints_are_satisfied(self, nn):
     """ Checks if the constraints of the child class are satisfied. """
-    return ''
+    img_inv_sizes = [piis for piis in nn.post_img_inv_sizes if piis != 'x']
+    max_post_img_inv_sizes = None if self.max_num_2strides is None \
+                                  else 2**self.max_num_2strides
+    violation = ''
+    if not self._check_leq_constraint(max(img_inv_sizes), max_post_img_inv_sizes):
+      violation = 'too_many_2strides'
+    return violation
 
 
 class MLPConstraintChecker(NNConstraintChecker):
@@ -103,7 +120,7 @@ class MLPConstraintChecker(NNConstraintChecker):
     """ Constructor. """
     super(MLPConstraintChecker, self).__init__(*args, **kwargs)
 
-  def _child_constraints_are_satisfied(self):
+  def _child_constraints_are_satisfied(self, nn):
     """ Checks if the constraints of the child class are satisfied. """
     return ''
 
