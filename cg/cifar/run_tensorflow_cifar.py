@@ -14,7 +14,7 @@ import os
 import argparse
 import tensorflow as tf
 import cg.cifar.cifar10_myMain as cifar10_myMain
-import cg.cifar.cifar10 as cifar10
+
 from opt.nn_opt_utils import get_initial_pool
 
 
@@ -27,8 +27,12 @@ def compute_validation_error(nn,data_dir,gpu_id,params,tmp_dir):
   """ Trains tensorflow neural network and then computes validation error. """
 
   # Fixed variables for CIFAR10 CNN runs
-  #variable_strategy = 'CPU'; num_gpus = 0 # For CPU
-  variable_strategy = 'GPU'; num_gpus = 1 # For GPU
+  
+  if gpu_id < 0:
+    variable_strategy = 'CPU'; num_gpus = 0 # For CPU
+  else:
+    variable_strategy = 'GPU'; num_gpus = 1 # For GPU
+
   use_distortion_for_training = True
   log_device_placement = False
   num_intra_threads = 0

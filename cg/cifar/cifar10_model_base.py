@@ -13,19 +13,11 @@
 # limitations under the License.
 # ==============================================================================
 
-
 # ==============================================================================
 # And modified by Willie.
 # ==============================================================================
 
 
-"""ResNet model.
-
-Related papers:
-https://arxiv.org/pdf/1603.05027v2.pdf
-https://arxiv.org/pdf/1512.03385v1.pdf
-https://arxiv.org/pdf/1605.07146v1.pdf
-"""
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -33,11 +25,11 @@ from __future__ import print_function
 import tensorflow as tf
 
 
-class ResNet(object):
-  """ResNet model."""
+class ConvNet(object):
+  """ConvNet model."""
 
   def __init__(self, is_training, data_format, batch_norm_decay, batch_norm_epsilon):
-    """ResNet constructor.
+    """ConvNet constructor.
 
     Args:
       is_training: if build training or inference model.
@@ -52,9 +44,9 @@ class ResNet(object):
 
   def forward_pass(self, x):
     raise NotImplementedError(
-        'forward_pass() is implemented in ResNet sub classes')
+        'forward_pass() is implemented in ConvNet sub classes')
 
-  def _residual_v1(self,
+  def _residual_layer(self,
                    x,
                    kernel_size,
                    in_filter,
@@ -64,98 +56,48 @@ class ResNet(object):
     """Residual unit with 2 sub layers, using Plan A for shortcut connection."""
 
     del activate_before_residual
-    with tf.name_scope('residual_v1') as name_scope:
+    with tf.name_scope('residual_layer') as name_scope:
       orig_x = x
-
-      x = self._conv(x, kernel_size, out_filter, stride)
-      x = self._batch_norm(x)
-      x = self._relu(x)
-
+      x = self._myConv(x,kernel_size,out_filter,stride)
       x = self._conv(x, kernel_size, out_filter, 1)
       x = self._batch_norm(x)
 
-      if in_filter != out_filter:
-        orig_x = self._avg_pool(orig_x, stride, stride)
-        pad = (out_filter - in_filter) // 2
+      # Pad for different number of filters
+      if out_filter > in_filter:
+        pad = int((out_filter - in_filter) // 2)
+        orig_x = self._myAvgPool(orig_x, stride, stride)
         if self._data_format == 'channels_first':
           orig_x = tf.pad(orig_x, [[0, 0], [pad, pad], [0, 0], [0, 0]])
         else:
           orig_x = tf.pad(orig_x, [[0, 0], [0, 0], [0, 0], [pad, pad]])
+      elif in_filter > out_filter:
+        pad = int((in_filter - out_filter) // 2)
+        x = self._myAvgPool(x, stride, stride)
+        if self._data_format == 'channels_first':
+          x = tf.pad(x, [[0, 0], [pad, pad], [0, 0], [0, 0]])
+        else:
+          x = tf.pad(x, [[0, 0], [0, 0], [0, 0], [pad, pad]])
+
+      # Also pad for different sizes (due to pooling)
+      orig_xshape = orig_x.get_shape().as_list()
+      xshape = x.get_shape().as_list()
+      if self._data_format == 'channels_first':
+        oldHeight = orig_xshape[2]
+        newHeight = xshape[2]
+        pad_height = int(abs(newHeight - oldHeight // 2))
+        oldWidth = orig_xshape[3]
+        newWidth = xshape[3]
+        pad_width = int(abs(newWidth - oldWidth // 2))
+        if oldHeight > newHeight:
+          x = tf.pad(x,[[0,0], [0,0], [pad_height,pad_height], [0,0]])
+        elif oldHeight < newHeight:
+          orig_x = tf.pad(orig_x,[[0,0], [0,0], [pad_height,pad_height], [0,0]])
+        if oldWidth > newWidth:
+          x = tf.pad(x,[[0,0], [0,0], [0,0], [pad_width,pad_width]])
+        elif oldWidth < newWidth:
+          orig_x = tf.pad(orig_x,[[0,0], [0,0], [0,0], [pad_width,pad_width]])
 
       x = self._relu(tf.add(x, orig_x))
-
-      tf.logging.info('image after unit %s: %s', name_scope, x.get_shape())
-      return x
-
-  def _residual_v2(self,
-                   x,
-                   in_filter,
-                   out_filter,
-                   stride,
-                   activate_before_residual=False):
-    """Residual unit with 2 sub layers with preactivation, plan A shortcut."""
-
-    with tf.name_scope('residual_v2') as name_scope:
-      if activate_before_residual:
-        x = self._batch_norm(x)
-        x = self._relu(x)
-        orig_x = x
-      else:
-        orig_x = x
-        x = self._batch_norm(x)
-        x = self._relu(x)
-
-      x = self._conv(x, 3, out_filter, stride)
-
-      x = self._batch_norm(x)
-      x = self._relu(x)
-      x = self._conv(x, 3, out_filter, [1, 1, 1, 1])
-
-      if in_filter != out_filter:
-        pad = (out_filter - in_filter) // 2
-        orig_x = self._avg_pool(orig_x, stride, stride)
-        if self._data_format == 'channels_first':
-          orig_x = tf.pad(orig_x, [[0, 0], [pad, pad], [0, 0], [0, 0]])
-        else:
-          orig_x = tf.pad(orig_x, [[0, 0], [0, 0], [0, 0], [pad, pad]])
-
-      x = tf.add(x, orig_x)
-
-      tf.logging.info('image after unit %s: %s', name_scope, x.get_shape())
-      return x
-
-  def _bottleneck_residual_v2(self,
-                              x,
-                              in_filter,
-                              out_filter,
-                              stride,
-                              activate_before_residual=False):
-    """Bottleneck residual unit with 3 sub layers, plan B shortcut."""
-
-    with tf.name_scope('bottle_residual_v2') as name_scope:
-      if activate_before_residual:
-        x = self._batch_norm(x)
-        x = self._relu(x)
-        orig_x = x
-      else:
-        orig_x = x
-        x = self._batch_norm(x)
-        x = self._relu(x)
-
-      x = self._conv(x, 1, out_filter // 4, stride, is_atrous=True)
-
-      x = self._batch_norm(x)
-      x = self._relu(x)
-      # pad when stride isn't unit
-      x = self._conv(x, 3, out_filter // 4, 1, is_atrous=True)
-
-      x = self._batch_norm(x)
-      x = self._relu(x)
-      x = self._conv(x, 1, out_filter, 1, is_atrous=True)
-
-      if in_filter != out_filter:
-        orig_x = self._conv(orig_x, 1, out_filter, stride, is_atrous=True)
-      x = tf.add(x, orig_x)
 
       tf.logging.info('image after unit %s: %s', name_scope, x.get_shape())
       return x
@@ -200,19 +142,9 @@ class ResNet(object):
   def _relu(self, x):
     return tf.nn.relu(x)
 
-  def _fully_connected(self, x, out_dim):
-    with tf.name_scope('fully_connected') as name_scope:
-      x = tf.layers.dense(x, out_dim)
+  def _relu_layer(self, x):
+    with tf.name_scope('relu') as name_scope:
       x = self._relu(x)
-
-    tf.logging.info('image after unit %s: %s', name_scope, x.get_shape())
-    return x
-
-  def _softmax(self, x, num_units):
-    with tf.name_scope('softmax') as name_scope:
-      x = self._global_avg_pool(x) # Flatten 
-      x = self._fully_connected(x,num_units) # With the tf.argmax/tf.softmax in cifar10_main._tower_fn, this should be softmax layer
-
     tf.logging.info('image after unit %s: %s', name_scope, x.get_shape())
     return x
 
@@ -223,35 +155,70 @@ class ResNet(object):
     x = self._relu(x)
     return x
 
-  def _avg_pool(self, x, pool_size, stride):
+  def _conv_layer(self, x, kernel_size, filters, strides, is_atrous=False):
+    """Wrapper on _myConv layer, when convolution is used by-itself as a layer."""
+    with tf.name_scope('conv_layer') as name_scope:
+      x = self._myConv(x, kernel_size, filters, strides, is_atrous=False)
+    tf.logging.info('image after unit %s: %s', name_scope, x.get_shape())
+    return x
+
+  def _myFullyConnected(self, x, out_dim):
+    x = tf.layers.dense(x, out_dim)
+    x = self._relu(x)
+    return x
+
+  def _fully_connected_layer(self, x, out_dim):
+    """Wrapper on _myFullyConnected, when fully connected is used by-itself as a layer."""
+    with tf.name_scope('fully_connected') as name_scope:
+      if x.get_shape().ndims == 4:
+        x = self._myGlobalAvgPool(x) # Flatten
+      x = self._myFullyConnected(x, out_dim)
+    tf.logging.info('image after unit %s: %s', name_scope, x.get_shape())
+    return x
+
+  def _softmax(self, x, num_units):
+    with tf.name_scope('softmax') as name_scope:
+      if x.get_shape().ndims == 4:
+        x = self._myGlobalAvgPool(x) # Flatten
+      x = self._myFullyConnected(x,num_units) # With the tf.argmax/tf.softmax in cifar10_main._tower_fn, this should be softmax layer
+    tf.logging.info('image after unit %s: %s', name_scope, x.get_shape())
+    return x
+
+  def _myAvgPool(self, x, pool_size, stride):
+    x = tf.layers.average_pooling2d(
+        x, pool_size, stride, 'SAME', data_format=self._data_format)
+    return x
+
+  def _avg_pool_layer(self, x, pool_size, stride):
+    """Wrapper on _myAvgPool, when average pool is used by-itself as a layer."""
     with tf.name_scope('avg_pool') as name_scope:
-      x = tf.layers.average_pooling2d(
-          x, pool_size, stride, 'SAME', data_format=self._data_format)
-
+      x = self._myAvgPool(x, pool_size, stride)
     tf.logging.info('image after unit %s: %s', name_scope, x.get_shape())
     return x
 
-  def _global_avg_pool(self, x):
+  def _myGlobalAvgPool(self, x):
+    assert x.get_shape().ndims == 4
+    if self._data_format == 'channels_first':
+      x = tf.reduce_mean(x, [2, 3])
+    else:
+      x = tf.reduce_mean(x, [1, 2])
+    return x
+
+  def _global_avg_pool_layer(self, x):
     with tf.name_scope('global_avg_pool') as name_scope:
-      assert x.get_shape().ndims == 4
-      if self._data_format == 'channels_first':
-        x = tf.reduce_mean(x, [2, 3])
-      else:
-        x = tf.reduce_mean(x, [1, 2])
+      x = self._myGlobalAvgPool(x)
     tf.logging.info('image after unit %s: %s', name_scope, x.get_shape())
     return x
 
-  def _max_pool(self, x, pool_size, stride):
+  def _max_pool_layer(self, x, pool_size, stride):
     with tf.name_scope('max_pool') as name_scope:
       x = tf.layers.max_pooling2d(
           x, pool_size, stride, 'SAME', data_format=self._data_format)
-
     tf.logging.info('image after unit %s: %s', name_scope, x.get_shape())
     return x
 
   def _concat(self, x1, x2):
     with tf.name_scope('concat') as name_scope:
       x = tf.concat([x1,x2],1)
-
     tf.logging.info('image after unit %s: %s', name_scope, x.get_shape())
     return x

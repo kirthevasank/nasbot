@@ -22,6 +22,53 @@ from opt.nn_opt_utils import get_initial_pool
 tf.logging.set_verbosity(tf.logging.INFO)
 
 
+def _loss_fn(is_training, weight_decay, feature, label, data_format,
+              nnObj, batch_norm_decay, batch_norm_epsilon):
+  """Build loss function for given network.
+
+  Args:
+    is_training: true if is training graph.
+    weight_decay: weight regularization strength, a float.
+    feature: a Tensor.
+    label: a Tensor.
+    data_format: channels_last (NHWC) or channels_first (NCHW).
+    num_layers: number of layers, an int.
+    nnObj: neural_network object
+    batch_norm_decay: decay for batch normalization, a float.
+    batch_norm_epsilon: epsilon for batch normalization, a float.
+
+  Returns:
+    A tuple with the loss, the gradients and parameters, and predictions.
+
+  """
+  model = cifar10_model.ConvNetCifar10(
+      nnObj,
+      batch_norm_decay=batch_norm_decay,
+      batch_norm_epsilon=batch_norm_epsilon,
+      is_training=is_training,
+      data_format=data_format)
+
+  #logits_sub = model.forward_pass(feature, input_data_format='channels_last')
+  logits_sub = model.forward_pass(feature, input_data_format=data_format)
+
+  # Loss and grad
+  tower_loss_sub = [tf.losses.sparse_softmax_cross_entropy(logits=x,
+      labels=label) for x in logits_sub] 
+  tower_loss = tf.add_n(tower_loss_sub) # Equivalently: divide by len(tower_loss_sub), to get mean instead of sum
+  tower_loss = tf.reduce_mean(tower_loss)
+  model_params = tf.trainable_variables()
+  tower_loss += weight_decay * tf.add_n(
+      [tf.nn.l2_loss(v) for v in model_params])
+  tower_grad = tf.gradients(tower_loss, model_params)
+
+  # Prediction
+  tower_pred = {
+      'classes': tf.argmax(input=tf.add_n([tf.nn.softmax(x) for x in logits_sub]),axis=1),
+      'probabilities': tf.scalar_mul( tf.Variable(1./len(logits_sub),tf.float32), tf.add_n([tf.nn.softmax(x) for x in logits_sub]) )
+  }
+  return tower_loss, zip(tower_grad, model_params), tower_pred
+
+
 def get_model_fn(num_gpus, variable_strategy, num_workers, nnObj):
   """Returns a function that will build the resnet model."""
 
@@ -80,13 +127,9 @@ def get_model_fn(num_gpus, variable_strategy, num_workers, nnObj):
             worker_device=worker_device,
             ps_strategy=tf.contrib.training.GreedyLoadBalancingStrategy(
                 num_gpus, tf.contrib.training.byte_size_load_fn))
-      with tf.variable_scope('resnet', reuse=bool(i != 0)):
-        with tf.name_scope('tower_%d' % i) as name_scope:
+      with tf.variable_scope('cnn', reuse=bool(i != 0)):
+        with tf.name_scope('device_%d' % i) as name_scope:
           with tf.device(device_setter):
-            ####################
-            #NOTE: To test my implementation of example-code resnet, can swap in the following line:
-            #loss, gradvars, preds = _loss_fn_resnet( #### MY RESNET IMPLEMENTATION
-            ####################
             loss, gradvars, preds = _loss_fn(
                 is_training, weight_decay, tower_features[i], tower_labels[i],
                 data_format, nnObj, params.batch_norm_decay,
@@ -131,15 +174,15 @@ def get_model_fn(num_gpus, variable_strategy, num_workers, nnObj):
       #boundaries = [
           #num_batches_per_epoch * x
           #for x in np.array([82, 123, 300], dtype=np.int64) # ORIGINAL CODE
-          #for x in np.array([27, 100, 200], dtype=np.int64)  # TESTING REDUCE STEP SIZE
-          #for x in np.array([20, 75, 150], dtype=np.int64)  # TESTING REDUCE STEP SIZE , global steps: 45k, 168.75k, 337.5k
-          #for x in np.array([30, 50, 100], dtype=np.int64)  # TESTING REDUCE STEP SIZE , global steps: 67.5k, 112.5k, 225k
+          #for x in np.array([27, 100, 200], dtype=np.int64)  # NEW STEP SIZE BOUNDARIES
+          #for x in np.array([20, 75, 150], dtype=np.int64)  # NEW STEP SIZE BOUNDARIES , global steps: 45k, 168.75k, 337.5k
+          #for x in np.array([30, 50, 100], dtype=np.int64)  # NEW STEP SIZE BOUNDARIES , global steps: 67.5k, 112.5k, 225k
       #]
       #staged_lr = [params.learning_rate * x for x in [1, 0.1, 0.01, 0.002]]
       ##################################
       boundaries = [
           num_batches_per_epoch * x
-          for x in np.array([15, 40, 80, 120], dtype=np.int64)  # TESTING REDUCE STEP SIZE , global steps: 33.75k, 90k, 180k, 270k
+          for x in np.array([15, 40, 80, 120], dtype=np.int64)  # NEW STEP SIZE BOUNDARIES , global steps: 33.75k, 90k, 180k, 270k
       ]
       staged_lr = [params.learning_rate * x for x in [1, 0.1, 0.01, 0.001, 0.0005]]
 
@@ -198,97 +241,51 @@ def get_model_fn(num_gpus, variable_strategy, num_workers, nnObj):
   return _resnet_model_fn
 
 
-def _loss_fn(is_training, weight_decay, feature, label, data_format,
-              nnObj, batch_norm_decay, batch_norm_epsilon):
-  """Build loss function for given network.
 
-  Args:
-    is_training: true if is training graph.
-    weight_decay: weight regularization strength, a float.
-    feature: a Tensor.
-    label: a Tensor.
-    data_format: channels_last (NHWC) or channels_first (NCHW).
-    num_layers: number of layers, an int.
-    nnObj: neural_network object
-    batch_norm_decay: decay for batch normalization, a float.
-    batch_norm_epsilon: epsilon for batch normalization, a float.
+#def _loss_fn_resnet(is_training, weight_decay, feature, label, data_format,
+              #nnObj, batch_norm_decay, batch_norm_epsilon):
+  #"""Build computation tower (Resnet).
 
-  Returns:
-    A tuple with the loss, the gradients and parameters, and predictions.
+  #Args:
+    #is_training: true if is training graph.
+    #weight_decay: weight regularization strength, a float.
+    #feature: a Tensor.
+    #label: a Tensor.
+    #data_format: channels_last (NHWC) or channels_first (NCHW).
+    #num_layers: number of layers, an int.
+    #nnObj: neural_network object ####
+    #batch_norm_decay: decay for batch normalization, a float.
+    #batch_norm_epsilon: epsilon for batch normalization, a float.
 
-  """
-  model = cifar10_model.ConvNetCifar10(
-      nnObj,
-      batch_norm_decay=batch_norm_decay,
-      batch_norm_epsilon=batch_norm_epsilon,
-      is_training=is_training,
-      data_format=data_format)
+  #Returns:
+    #A tuple with the loss for the tower, the gradients and parameters, and
+    #predictions.
 
-  logits_sub = model.forward_pass(feature, input_data_format='channels_last')
+  #"""
+  #model = cifar10_model.ConvNetCifar10(
+      #nnObj,
+      #batch_norm_decay=batch_norm_decay,
+      #batch_norm_epsilon=batch_norm_epsilon,
+      #is_training=is_training,
+      #data_format=data_format)
 
-  # Loss and grad
-  tower_loss_sub = [tf.losses.sparse_softmax_cross_entropy(logits=x,
-      labels=label) for x in logits_sub] 
-  tower_loss = tf.add_n(tower_loss_sub) # Maybe divide by len(tower_loss_sub), to get mean instead of sum
-  tower_loss = tf.reduce_mean(tower_loss)
-  model_params = tf.trainable_variables()
-  tower_loss += weight_decay * tf.add_n(
-      [tf.nn.l2_loss(v) for v in model_params])
-  tower_grad = tf.gradients(tower_loss, model_params)
+  ## Loss and grad
+  #logits = model.forward_pass_resnet(feature, input_data_format='channels_last')
+  #tower_loss = tf.losses.sparse_softmax_cross_entropy(logits=logits,
+      #labels=label)
+  #tower_loss = tf.reduce_mean(tower_loss)
+  #model_params = tf.trainable_variables()
+  #tower_loss += weight_decay * tf.add_n(
+      #[tf.nn.l2_loss(v) for v in model_params])
+  #tower_grad = tf.gradients(tower_loss, model_params)
 
-  # Prediction
-  tower_pred = {
-      'classes': tf.argmax(input=tf.add_n([tf.nn.softmax(x) for x in logits_sub]),axis=1),
-      'probabilities': tf.scalar_mul( tf.Variable(1./len(logits_sub),tf.float32), tf.add_n([tf.nn.softmax(x) for x in logits_sub]) )
-  }
-  return tower_loss, zip(tower_grad, model_params), tower_pred
+  ## Prediction
+  #tower_pred = {
+      #'classes': tf.argmax(input=logits, axis=1),
+      #'probabilities': tf.nn.softmax(logits)
+  #}
 
-
-
-def _loss_fn_resnet(is_training, weight_decay, feature, label, data_format,
-              nnObj, batch_norm_decay, batch_norm_epsilon):
-  """Build computation tower (Resnet).
-
-  Args:
-    is_training: true if is training graph.
-    weight_decay: weight regularization strength, a float.
-    feature: a Tensor.
-    label: a Tensor.
-    data_format: channels_last (NHWC) or channels_first (NCHW).
-    num_layers: number of layers, an int.
-    nnObj: neural_network object ####
-    batch_norm_decay: decay for batch normalization, a float.
-    batch_norm_epsilon: epsilon for batch normalization, a float.
-
-  Returns:
-    A tuple with the loss for the tower, the gradients and parameters, and
-    predictions.
-
-  """
-  model = cifar10_model.ConvNetCifar10(
-      nnObj,
-      batch_norm_decay=batch_norm_decay,
-      batch_norm_epsilon=batch_norm_epsilon,
-      is_training=is_training,
-      data_format=data_format)
-
-  # Loss and grad
-  logits = model.forward_pass_resnet(feature, input_data_format='channels_last')
-  tower_loss = tf.losses.sparse_softmax_cross_entropy(logits=logits,
-      labels=label)
-  tower_loss = tf.reduce_mean(tower_loss)
-  model_params = tf.trainable_variables()
-  tower_loss += weight_decay * tf.add_n(
-      [tf.nn.l2_loss(v) for v in model_params])
-  tower_grad = tf.gradients(tower_loss, model_params)
-
-  # Prediction
-  tower_pred = {
-      'classes': tf.argmax(input=logits, axis=1),
-      'probabilities': tf.nn.softmax(logits)
-  }
-
-  return tower_loss, zip(tower_grad, model_params), tower_pred
+  #return tower_loss, zip(tower_grad, model_params), tower_pred
 
 
 

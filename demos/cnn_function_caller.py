@@ -49,7 +49,7 @@ class CNNFunctionCaller(NNFunctionCaller):
     while num_tries < _MAX_TRIES and not succ_eval:
       try:
         vali_error = run_tensorflow_cifar.compute_validation_error(nn, self.data_file_str,
-                      0, self.train_params.tf_params, self.tmp_dir)
+                      qinfo.worker_id, self.train_params.tf_params, self.tmp_dir)
         succ_eval = True
         sleep(_SLEEP_BETWEEN_TRIES_SECS)
       except:
