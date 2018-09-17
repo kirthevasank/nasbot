@@ -1,6 +1,12 @@
+"""
+  Defining loss_fn, model_fn, and input_fn for running cnn on cifar10.
+  -- willie@cs.cmu.edu
+"""
+
 # Copyright 2017 The TensorFlow Authors. All Rights Reserved.
-# And modified by Willie.
+# And modified by Willie, 2018.
 # ==============================================================================
+
 from __future__ import division
 from __future__ import print_function
 
@@ -239,54 +245,6 @@ def get_model_fn(num_gpus, variable_strategy, num_workers, nnObj):
         eval_metric_ops=metrics)
 
   return _resnet_model_fn
-
-
-
-#def _loss_fn_resnet(is_training, weight_decay, feature, label, data_format,
-              #nnObj, batch_norm_decay, batch_norm_epsilon):
-  #"""Build computation tower (Resnet).
-
-  #Args:
-    #is_training: true if is training graph.
-    #weight_decay: weight regularization strength, a float.
-    #feature: a Tensor.
-    #label: a Tensor.
-    #data_format: channels_last (NHWC) or channels_first (NCHW).
-    #num_layers: number of layers, an int.
-    #nnObj: neural_network object ####
-    #batch_norm_decay: decay for batch normalization, a float.
-    #batch_norm_epsilon: epsilon for batch normalization, a float.
-
-  #Returns:
-    #A tuple with the loss for the tower, the gradients and parameters, and
-    #predictions.
-
-  #"""
-  #model = cifar10_model.ConvNetCifar10(
-      #nnObj,
-      #batch_norm_decay=batch_norm_decay,
-      #batch_norm_epsilon=batch_norm_epsilon,
-      #is_training=is_training,
-      #data_format=data_format)
-
-  ## Loss and grad
-  #logits = model.forward_pass_resnet(feature, input_data_format='channels_last')
-  #tower_loss = tf.losses.sparse_softmax_cross_entropy(logits=logits,
-      #labels=label)
-  #tower_loss = tf.reduce_mean(tower_loss)
-  #model_params = tf.trainable_variables()
-  #tower_loss += weight_decay * tf.add_n(
-      #[tf.nn.l2_loss(v) for v in model_params])
-  #tower_grad = tf.gradients(tower_loss, model_params)
-
-  ## Prediction
-  #tower_pred = {
-      #'classes': tf.argmax(input=logits, axis=1),
-      #'probabilities': tf.nn.softmax(logits)
-  #}
-
-  #return tower_loss, zip(tower_grad, model_params), tower_pred
-
 
 
 def input_fn(data_dir,

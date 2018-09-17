@@ -1,4 +1,10 @@
+"""
+  ConvNetCifar10 model class.
+  -- willie@cs.cmu.edu
+"""
+
 # Copyright 2017 The TensorFlow Authors. All Rights Reserved.
+# And modified by Willie, 2018.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,14 +19,6 @@
 # limitations under the License.
 # ==============================================================================
 
-
-# ==============================================================================
-# And modified by Willie.
-# ==============================================================================
-
-
-
-"""Model class for Cifar10 Dataset."""
 from __future__ import division
 from __future__ import print_function
 
@@ -107,7 +105,6 @@ class ConvNetCifar10(ConvNet):
     x = x / 128 - 1
     nn = self.nnObj
 
-    ##################
     # Printing next architecture before translating into tensorflow
     print('=================================================')
     print('List of layers and num-units in next architecture:')
@@ -116,7 +113,6 @@ class ConvNetCifar10(ConvNet):
       unitsToPrint = nn.num_units_in_each_layer[lidx]
       print('layer-label = %s,  num-units = %s' % (layerToPrint, unitsToPrint))
     print('=================================================')
-    ##################
 
     # Loop over layers and define conv net 
     layers = [x]  # Add first layer to layers-list 

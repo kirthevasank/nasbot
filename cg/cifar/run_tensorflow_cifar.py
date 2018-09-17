@@ -1,9 +1,6 @@
-# ==============================================================================
-# Written by Willie.
-# ==============================================================================
-
 """
- Defining, training, and evaluating neural networks in tensorflow on CIFAR-10.
+  Defining, training, and evaluating neural networks in tensorflow on CIFAR-10.
+  -- willie@cs.cmu.edu
 """
 
 from __future__ import absolute_import
