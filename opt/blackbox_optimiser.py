@@ -20,7 +20,7 @@ from utils.reporters import get_reporter
 blackbox_opt_args = [
   get_option_specs('max_num_steps', False, 1e7,
     'If exceeds this many evaluations, stop.'),
-  get_option_specs('capital_type', False, 'return_value',
+  get_option_specs('capital_type', False, 'realtime',
     'Should be one of return_value, cputime, or realtime'),
   get_option_specs('num_init_evals', False, 20,
     ('The number of evaluations for initialisation. If <0, will use default.')),

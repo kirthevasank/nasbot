@@ -13,6 +13,7 @@ from opt import nasbot
 from demos.cnn_function_caller import CNNFunctionCaller
 from opt.worker_manager import RealWorkerManager
 from utils.reporters import get_reporter
+import os
 
 # Data:
 # We use the Cifar10 dataset which is converted to .tfrecords format for tensorflow.
@@ -36,17 +37,27 @@ MAX_NUM_UNITS_PER_LAYER = 1024 # Maximum number of computational units ...
 MIN_NUM_UNITS_PER_LAYER = 8    # ... (neurons/conv-filters) per layer.
 
 # Which GPU IDs are available
-GPU_IDS = [0, 1]
+GPU_IDS = [0]
+#GPU_IDS = [0, 1]  # For multiple GPUs
 
-# Where to store temporary model checkpoints (can get larger than capacity of /tmp on auton),
-TMP_DIR = '/tmp'
+# Specify data directory
+DATA_DIR = 'demos/cifar-10-data' # contains the cifar-10-data files
+
+# Specify directories that will be created
+EXP_DIR = 'ExperimentDirectory/' # will store output files for demo_cnn
+TMP_DIR = EXP_DIR + 'tmp/' # will store temporary model checkpoints
+LOG_FILE = EXP_DIR + 'log_cnn' # will log output and results
 
 # Specify the budget (in seconds)
 BUDGET = 12 * 60 * 60
 
+# Make EXP_DIR and TMP_DIR
+os.mkdir(EXP_DIR)
+os.mkdir(TMP_DIR)
+
 # Obtain a reporter object
 # REPORTER = get_reporter('default') # Writes results to stdout
-REPORTER = get_reporter(open('log_cnn', 'w')) # Writes to file log_cnn
+REPORTER = get_reporter(open(LOG_FILE, 'w')) # Writes to file LOG_FILE
 
 def main():
   """ Main function. """
@@ -62,7 +73,7 @@ def main():
   # neural network architectures. We have defined the CNNFunctionCaller in
   # demos/cnn_function_caller.py. The train_params argument can be used to specify
   # additional training parameters such as the learning rate etc.
-  train_params = Namespace(data_dir='cifar-10-data')
+  train_params = Namespace(data_dir=DATA_DIR)
   func_caller = CNNFunctionCaller('cifar10', nn_domain, train_params,
                                   tmp_dir=TMP_DIR, reporter=REPORTER)
 
@@ -71,9 +82,9 @@ def main():
                                      reporter=REPORTER)
 
   # Print the optimal value and visualise the best network.
-  REPORTER.writeln('\nOptimum value found: '%(opt_val))
-  REPORTER.writeln('Optimal network visualised in cnn_opt_network.eps.')
-  visualise_nn(opt_nn, 'cnn_opt_network')
+  REPORTER.writeln('\nOptimum value found: %f' % opt_val)
+  REPORTER.writeln('Optimal network visualised in ' + EXP_DIR + 'cnn_opt_network.eps.')
+  visualise_nn(opt_nn, EXP_DIR + 'cnn_opt_network')
 
   # N.B: See function nasbot and class NASBOT in opt/nasbot.py to customise additional
   # parameters of the algorithm.
@@ -81,4 +92,3 @@ def main():
 
 if __name__ == '__main__':
   main()
-
