@@ -93,13 +93,14 @@ class ConvNetCifar10(ConvNet):
 
   def forward_pass(self, x, input_data_format='channels_last'):
     """Build the core model within the graph."""
+
     if self._data_format != input_data_format:
       if input_data_format == 'channels_last':
         # Computation requires channels_first.
-        x = tf.transpose(x, [0, 3, 1, 2])
+        x = tf.transpose(x, [0, 3, 1, 2])  # Change position of 3 only
       else:
         # Computation requires channels_last.
-        x = tf.transpose(x, [0, 2, 3, 1])
+        x = tf.transpose(x, [0, 2, 3, 1]) # Change position of 1 only
 
     # Image standardization.
     x = x / 128 - 1
@@ -120,10 +121,11 @@ class ConvNetCifar10(ConvNet):
       # Find and concatenate parent layers
       plist = get_layer_parents(nn.conn_mat.viewkeys(),lidx)
       parent_layers = [layers[i] for i in plist]
-      input_layer = tf.concat(parent_layers,1)
-      if input_data_format == 'channels_last':
+      if self._data_format == 'channels_last':
+        input_layer = tf.concat(parent_layers,3)
         num_incoming_filters = input_layer.get_shape().as_list()[-1]
       else:
+        input_layer = tf.concat(parent_layers,1)
         num_incoming_filters = input_layer.get_shape().as_list()[1]
       # Add layer to layers-list
       nextLayer = self._get_layers(nn,lidx,num_incoming_filters)

@@ -54,13 +54,12 @@ def _loss_fn(is_training, weight_decay, feature, label, data_format,
       is_training=is_training,
       data_format=data_format)
 
-  #logits_sub = model.forward_pass(feature, input_data_format='channels_last')
-  logits_sub = model.forward_pass(feature, input_data_format=data_format)
+  logits_sub = model.forward_pass(feature, input_data_format='channels_last')
 
   # Loss and grad
   tower_loss_sub = [tf.losses.sparse_softmax_cross_entropy(logits=x,
       labels=label) for x in logits_sub] 
-  tower_loss = tf.add_n(tower_loss_sub) # Equivalently: divide by len(tower_loss_sub), to get mean instead of sum
+  tower_loss = tf.add_n(tower_loss_sub)
   tower_loss = tf.reduce_mean(tower_loss)
   model_params = tf.trainable_variables()
   tower_loss += weight_decay * tf.add_n(
@@ -78,7 +77,7 @@ def _loss_fn(is_training, weight_decay, feature, label, data_format,
 def get_model_fn(num_gpus, variable_strategy, num_workers, nnObj):
   """Returns a function that will build the resnet model."""
 
-  def _resnet_model_fn(features, labels, mode, params):
+  def _cnn_model_fn(features, labels, mode, params):
     """Resnet model body.
 
     Support single host, one or more GPU training. Parameter distribution can
@@ -244,7 +243,7 @@ def get_model_fn(num_gpus, variable_strategy, num_workers, nnObj):
         training_hooks=train_hooks,
         eval_metric_ops=metrics)
 
-  return _resnet_model_fn
+  return _cnn_model_fn
 
 
 def input_fn(data_dir,
