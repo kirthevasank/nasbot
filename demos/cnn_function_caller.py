@@ -23,9 +23,8 @@ def get_default_cnn_tf_params():
     'trainNumStepsPerLoop':4000,
     'valiNumStepsPerLoop':313,
     'numLoops':20,
-    'learningRate':0.01,
+    'learningRate':0.005
     }
-
 
 class CNNFunctionCaller(NNFunctionCaller):
   """ Function caller to be used in the MLP experiments. """

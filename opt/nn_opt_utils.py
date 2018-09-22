@@ -28,9 +28,8 @@ def get_initial_cnn_pool():
                   nn_examples.get_blocked_cnn(3, 5, 1), # 15
                   nn_examples.get_blocked_cnn(4, 4, 1), # 16
                  ]
-  resnet_cnns = []
-#   multidepth_cnns = [nn_examples.get_multidepth_cnn_eg2()]
-  multidepth_cnns = []
+  resnet_cnns = [nn_examples.get_resnet_cnn(3, 2, 1)]
+  multidepth_cnns = [nn_examples.get_multidepth_cnn_eg2()]
   return vgg_nets + blocked_cnns + resnet_cnns + multidepth_cnns
 
 def get_initial_mlp_pool(class_or_reg):

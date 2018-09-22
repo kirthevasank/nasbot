@@ -311,8 +311,28 @@ def generate_cnn_architectures():
              else 1 for ll in layer_labels]
   cnn_7 = ConvNeuralNetwork(layer_labels, A,
             num_filters_each_layer, strides, all_layer_label_classes)
+  # Network 8 - Similar to previous, except with residual layers
+  layer_labels = ['ip', 'conv3', 'res3', 'res5', 'fc', 'fc', 'op', 'max-pool',
+                  'fc', 'softmax', 'softmax']
+  num_filters_each_layer = [None, 16, 16, 32, 32, 32, None, None, 32, None, None]
+  A = get_dok_mat_with_set_coords(11, [(0,1), (1,2), (2,3), (4,5), (5,9), (3,7),
+                                      (7,4), (4,8), (8,9), (9,6), (8,10), (10,6)])
+  strides = [None if ll in ['ip', 'op', 'fc', 'softmax', 'max-pool']
+             else 1 for ll in layer_labels]
+  cnn_8 = ConvNeuralNetwork(layer_labels, A,
+            num_filters_each_layer, strides, all_layer_label_classes)
+  # Network 9 - Similar to previous, except decreasing units for residual layers
+  layer_labels = ['ip', 'conv3', 'res3', 'res5', 'res7', 'fc', 'op', 'max-pool',
+                  'fc', 'softmax', 'softmax']
+  num_filters_each_layer = [None, 16, 32, 8, 32, 128, None, None, 256, None, None]
+  A = get_dok_mat_with_set_coords(11, [(0,1), (1,2), (2,3), (4,5), (5,9), (3,7),
+                                      (7,4), (4,8), (8,9), (9,6), (8,10), (10,6)])
+  strides = [None if ll in ['ip', 'op', 'fc', 'softmax', 'max-pool']
+             else 1 for ll in layer_labels]
+  cnn_9 = ConvNeuralNetwork(layer_labels, A,
+            num_filters_each_layer, strides, all_layer_label_classes)
 
-  return [cnn_1, cnn_2, cnn_3, cnn_4, cnn_5, cnn_6, cnn_7,
+  return [cnn_1, cnn_2, cnn_3, cnn_4, cnn_5, cnn_6, cnn_7, cnn_8, cnn_9,
           get_vgg_net(2),
           get_blocked_cnn(3, 4, 1),
           get_resnet_cnn(3, 2, 1),

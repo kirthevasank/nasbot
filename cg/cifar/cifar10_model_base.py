@@ -173,60 +173,76 @@ class ConvNet(object):
 
     del activate_before_residual
     with tf.name_scope('residual_layer') as name_scope:
+      in_filter = int(in_filter)
+      out_filter = int(out_filter)
       orig_x = x
       x = self._myConv(x,kernel_size,out_filter,stride)
       x = self._conv(x, kernel_size, out_filter, 1)
       x = self._batch_norm(x)
 
       # Pad for different number of filters
-      if out_filter > in_filter:
-        pad = int((out_filter - in_filter) // 2)
-        orig_x = self._myAvgPool(orig_x, stride, stride)
-        if self._data_format == 'channels_first':
-          orig_x = tf.pad(orig_x, [[0, 0], [pad, pad], [0, 0], [0, 0]])
-        else:
-          orig_x = tf.pad(orig_x, [[0, 0], [0, 0], [0, 0], [pad, pad]])
-      elif in_filter > out_filter:
-        pad = int((in_filter - out_filter) // 2)
-        x = self._myAvgPool(x, stride, stride)
-        if self._data_format == 'channels_first':
-          x = tf.pad(x, [[0, 0], [pad, pad], [0, 0], [0, 0]])
-        else:
-          x = tf.pad(x, [[0, 0], [0, 0], [0, 0], [pad, pad]])
+      if out_filter != in_filter:
+        pad_diff = abs(out_filter - in_filter)
+        pad1 = pad_diff // 2
+        pad2 = pad_diff - pad1
+        if out_filter > in_filter:
+          orig_x = self._myAvgPool(orig_x, stride, stride)
+          if self._data_format == 'channels_first':
+            orig_x = tf.pad(orig_x, [[0, 0], [pad1, pad2], [0, 0], [0, 0]])
+          else:
+            orig_x = tf.pad(orig_x, [[0, 0], [0, 0], [0, 0], [pad1, pad2]])
+        elif in_filter > out_filter:
+          x = self._myAvgPool(x, stride, stride)
+          if self._data_format == 'channels_first':
+            x = tf.pad(x, [[0, 0], [pad1, pad2], [0, 0], [0, 0]])
+          else:
+            x = tf.pad(x, [[0, 0], [0, 0], [0, 0], [pad1, pad2]])
 
-      # Also pad for different sizes (due to pooling)
+      # Also pad for different image heights and widths (due to pooling)
       orig_xshape = orig_x.get_shape().as_list()
       xshape = x.get_shape().as_list()
       if self._data_format == 'channels_first':
-        oldHeight = orig_xshape[2]
-        newHeight = xshape[2]
-        pad_height = int(abs((newHeight - oldHeight) // 2))
-        oldWidth = orig_xshape[3]
-        newWidth = xshape[3]
-        pad_width = int(abs((newWidth - oldWidth) // 2))
-        if oldHeight > newHeight:
-          x = tf.pad(x,[[0,0], [0,0], [pad_height,pad_height], [0,0]])
+        # Pad height, case: channels_first
+        oldHeight = int(orig_xshape[2])
+        newHeight = int(xshape[2])
+        pad_height_diff = abs(newHeight - oldHeight)
+        pad_height1 = pad_height_diff // 2
+        pad_height2 = pad_height_diff - pad_height1
+        if newHeight < oldHeight:
+          x = tf.pad(x,[[0,0], [0,0], [pad_height1,pad_height2], [0,0]])
         elif oldHeight < newHeight:
-          orig_x = tf.pad(orig_x,[[0,0], [0,0], [pad_height,pad_height], [0,0]])
-        if oldWidth > newWidth:
-          x = tf.pad(x,[[0,0], [0,0], [0,0], [pad_width,pad_width]])
+          orig_x = tf.pad(orig_x,[[0,0], [0,0], [pad_height1,pad_height2], [0,0]])
+        # Pad width, case: channels_first
+        oldWidth = int(orig_xshape[3])
+        newWidth = int(xshape[3])
+        pad_width_diff = abs(newWidth - oldWidth)
+        pad_width1 = pad_width_diff // 2
+        pad_width2 = pad_width_diff - pad_width1
+        if newWidth < oldWidth:
+          x = tf.pad(x,[[0,0], [0,0], [0,0], [pad_width1,pad_width2]])
         elif oldWidth < newWidth:
-          orig_x = tf.pad(orig_x,[[0,0], [0,0], [0,0], [pad_width,pad_width]])
+          orig_x = tf.pad(orig_x,[[0,0], [0,0], [0,0], [pad_width1,pad_width2]])
       else:
-        oldHeight = orig_xshape[1]
-        newHeight = xshape[1]
-        pad_height = int(abs((newHeight - oldHeight) // 2))
-        oldWidth = orig_xshape[2]
-        newWidth = xshape[2]
-        pad_width = int(abs((newWidth - oldWidth) // 2))
-        if oldHeight > newHeight:
-          x = tf.pad(x,[[0,0], [pad_height,pad_height], [0,0], [0,0]])
+        # Pad height, case: channels_last
+        oldHeight = int(orig_xshape[1])
+        newHeight = int(xshape[1])
+        pad_height_diff = abs(newHeight - oldHeight)
+        pad_height1 = pad_height_diff // 2
+        pad_height2 = pad_height_diff - pad_height1
+        if newHeight < oldHeight:
+          x = tf.pad(x,[[0,0], [pad_height1,pad_height2], [0,0], [0,0]])
         elif oldHeight < newHeight:
-          orig_x = tf.pad(orig_x,[[0,0], [pad_height,pad_height], [0,0], [0,0]])
-        if oldWidth > newWidth:
-          x = tf.pad(x,[[0,0], [0,0], [pad_width,pad_width], [0,0]])
+          orig_x = tf.pad(orig_x,[[0,0], [pad_height1,pad_height2], [0,0], [0,0]])
+        # Pad width, case: channels_last
+        oldWidth = int(orig_xshape[2])
+        newWidth = int(xshape[2])
+        pad_width_diff = abs(newWidth - oldWidth)
+        pad_width1 = pad_width_diff // 2
+        pad_width2 = pad_width_diff - pad_width1
+        if newWidth < oldWidth:
+          x = tf.pad(x,[[0,0], [0,0], [pad_width1,pad_width2], [0,0]])
         elif oldWidth < newWidth:
-          orig_x = tf.pad(orig_x,[[0,0], [0,0], [pad_width,pad_width], [0,0]])
+          orig_x = tf.pad(orig_x,[[0,0], [0,0], [pad_width1,pad_width2], [0,0]])
 
       x = self._relu(tf.add(x, orig_x))
       tf.logging.info('image after unit %s: %s', name_scope, x.get_shape())
