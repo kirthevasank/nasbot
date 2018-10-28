@@ -24,6 +24,11 @@ from utils.reporters import get_reporter
 # The slice and indoor_location datasets are available at
 # http://www.cs.cmu.edu/~kkandasa/research.html as examples. Put them in the demos
 # directory to run the demo.
+
+# Results
+# The progress of optimization will be logged in mlp_experiment_dir_<time>/log where
+# <time> is a time stamp.
+
 # DATASET = 'slice'
 DATASET = 'indoor'
 
@@ -40,7 +45,8 @@ MIN_NUM_UNITS_PER_LAYER = 8    # ... (neurons/conv-filters) per layer.
 
 # Which GPU IDs are available
 # GPU_IDS = [0, 1]
-GPU_IDS = [2, 3]
+# GPU_IDS = [2, 3]
+GPU_IDS = [1]
 
 # Where to store temporary model checkpoints
 EXP_DIR = 'mlp_experiment_dir_%s'%(time.strftime('%Y%m%d%H%M%S'))

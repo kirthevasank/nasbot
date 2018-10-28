@@ -26,6 +26,10 @@ from utils.reporters import get_reporter
 # Put the xxx.tfrecords in a directory named cifar-10-data in the demos directory to run
 # this demo.
 
+# Results
+# The progress of optimization will be logged in cnn_experiment_dir_<time>/log where
+# <time> is a time stamp.
+
 # Search space
 MAX_NUM_LAYERS = 60 # The maximum number of layers
 MIN_NUM_LAYERS = 5 # The minimum number of layers
@@ -39,7 +43,8 @@ MIN_NUM_UNITS_PER_LAYER = 8    # ... (neurons/conv-filters) per layer.
 
 # Which GPU IDs are available
 # GPU_IDS = [0]
-GPU_IDS = [0, 1]  # For multiple GPUs
+# GPU_IDS = [0, 1]  # For multiple GPUs
+GPU_IDS = [2, 3]  # For multiple GPUs
 
 # Specify data directory
 DATA_DIR = 'cifar-10-data' # contains the cifar-10-data files
@@ -50,7 +55,7 @@ TMP_DIR = os.path.join(EXP_DIR, 'tmp') # will store temporary model checkpoints
 LOG_FILE = os.path.join(EXP_DIR, 'log') # will log output and results
 
 # Specify the budget (in seconds)
-BUDGET = 12 * 60 * 60
+BUDGET = 2 * 24 * 60 * 60 # this is two days
 
 # Make EXP_DIR and TMP_DIR
 os.mkdir(EXP_DIR)

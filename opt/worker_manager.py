@@ -200,11 +200,11 @@ class RealWorkerManager(WorkerManager):
   def _rwm_set_up(self):
     """ Sets things up for the child. """
     # Create the result directories. """
-    self.result_dir_names = {wid:'%s/result_%s'%(tmp_dir, str(wid)) for wid in
-                                                      self.worker_ids}
+    self.result_dir_names = {wid:'%s/result_%s'%(self.tmp_dir, str(wid)) for wid in
+                                                 self.worker_ids}
     # Create the working directories
-    self.working_dir_names = {wid:'%s/working_%s/tmp'%(tmp_dir, str(wid)) for wid in
-                                                            self.worker_ids}
+    self.working_dir_names = {wid:'%s/working_%s/tmp'%(self.tmp_dir, str(wid)) for wid in
+                                                       self.worker_ids}
     # Create the last receive times
     self.last_receive_times = {wid:0.0 for wid in self.worker_ids}
     # Create file names

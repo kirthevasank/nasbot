@@ -44,7 +44,7 @@ class CNNFunctionCaller(NNFunctionCaller):
     os.environ['CUDA_VISIBLE_DEVICES'] = str(qinfo.worker_id)
     num_tries = 0
     succ_eval = False
-    self.reporter.writeln('Evaluating %s on GPU %d.'%(nn, qinfo.worker_id))
+#     self.reporter.writeln('Evaluating %s on GPU %d.'%(nn, qinfo.worker_id))
     while num_tries < _MAX_TRIES and not succ_eval:
       try:
         vali_error = run_tensorflow_cifar.compute_validation_error(nn, self.data_file_str,
