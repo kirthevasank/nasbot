@@ -5,6 +5,8 @@
 
 from argparse import Namespace
 import numpy as np
+import time
+import os
 # Local
 from nn.nn_constraint_checkers import get_nn_domain_from_constraints
 from nn.nn_visualise import visualise_nn
@@ -40,7 +42,9 @@ MIN_NUM_UNITS_PER_LAYER = 8    # ... (neurons/conv-filters) per layer.
 # GPU_IDS = [0, 1]
 GPU_IDS = [2, 3]
 
-# Where to store temporary model checkpoints (can get larger than capacity of /tmp on auton),
+# Where to store temporary model checkpoints
+EXP_DIR = 'mlp_experiment_dir_%s'%(time.strftime('%Y%m%d%H%M%S'))
+LOG_FILE = os.path.join(EXP_DIR, 'log')
 TMP_DIR = '/tmp'
 
 # Function to return the name of the file containing dataset
@@ -69,7 +73,7 @@ def main():
   # Obtain a worker manager: A worker manager (defined in opt/worker_manager.py) is used
   # to manage (possibly) multiple workers. For a RealWorkerManager, the budget should be
   # given in wall clock seconds.
-  worker_manager = RealWorkerManager(GPU_IDS)
+  worker_manager = RealWorkerManager(GPU_IDS, EXP_DIR)
   # Obtain a function caller: A function_caller is used to evaluate a function defined on
   # neural network architectures. We have defined the MLPFunctionCaller in
   # demos/mlp_function_caller.py. The train_params can be used to specify additional
@@ -84,8 +88,9 @@ def main():
 
   # Print the optimal value and visualise the best network.
   REPORTER.writeln('\nOptimum value found: '%(opt_val))
-  REPORTER.writeln('Optimal network visualised in mlp_opt_network.eps.')
-  visualise_nn(opt_nn, 'mlp_opt_network')
+  visualise_file = os.path.join(EXP_DIR, 'mlp_optimal_network')
+  REPORTER.writeln('Optimal network visualised in %s.eps.'%(visualise_file))
+  visualise_nn(opt_nn, visualise_file)
 
   # N.B: See function nasbot and class NASBOT in opt/nasbot.py to customise additional
   # parameters of the algorithm.

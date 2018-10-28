@@ -6,6 +6,8 @@
 
 from argparse import Namespace
 import numpy as np
+import os
+import time
 # Local
 from nn.nn_constraint_checkers import get_nn_domain_from_constraints
 from nn.nn_visualise import visualise_nn
@@ -13,7 +15,6 @@ from opt import nasbot
 from demos.cnn_function_caller import CNNFunctionCaller
 from opt.worker_manager import RealWorkerManager
 from utils.reporters import get_reporter
-import os
 
 # Data:
 # We use the Cifar10 dataset which is converted to .tfrecords format for tensorflow.
@@ -37,16 +38,16 @@ MAX_NUM_UNITS_PER_LAYER = 1024 # Maximum number of computational units ...
 MIN_NUM_UNITS_PER_LAYER = 8    # ... (neurons/conv-filters) per layer.
 
 # Which GPU IDs are available
-GPU_IDS = [0]
-#GPU_IDS = [0, 1]  # For multiple GPUs
+# GPU_IDS = [0]
+GPU_IDS = [0, 1]  # For multiple GPUs
 
 # Specify data directory
-DATA_DIR = 'demos/cifar-10-data' # contains the cifar-10-data files
+DATA_DIR = 'cifar-10-data' # contains the cifar-10-data files
 
 # Specify directories that will be created
-EXP_DIR = 'ExperimentDirectory/' # will store output files for demo_cnn
-TMP_DIR = EXP_DIR + 'tmp/' # will store temporary model checkpoints
-LOG_FILE = EXP_DIR + 'log_cnn' # will log output and results
+EXP_DIR = 'cnn_experiment_dir_%s'%(time.strftime('%Y%m%d%H%M%S'))
+TMP_DIR = os.path.join(EXP_DIR, 'tmp') # will store temporary model checkpoints
+LOG_FILE = os.path.join(EXP_DIR, 'log') # will log output and results
 
 # Specify the budget (in seconds)
 BUDGET = 12 * 60 * 60
@@ -68,7 +69,7 @@ def main():
   # Obtain a worker manager: A worker manager (defined in opt/worker_manager.py) is used
   # to manage (possibly) multiple workers. For a RealWorkerManager, the budget should be
   # given in wall clock seconds.
-  worker_manager = RealWorkerManager(GPU_IDS)
+  worker_manager = RealWorkerManager(GPU_IDS, EXP_DIR)
   # Obtain a function caller: A function_caller is used to evaluate a function defined on
   # neural network architectures. We have defined the CNNFunctionCaller in
   # demos/cnn_function_caller.py. The train_params argument can be used to specify
@@ -83,8 +84,9 @@ def main():
 
   # Print the optimal value and visualise the best network.
   REPORTER.writeln('\nOptimum value found: %f' % opt_val)
-  REPORTER.writeln('Optimal network visualised in ' + EXP_DIR + 'cnn_opt_network.eps.')
-  visualise_nn(opt_nn, EXP_DIR + 'cnn_opt_network')
+  visualise_file = os.path.join(EXP_DIR, 'cnn_opt_network')
+  REPORTER.writeln('Optimal network visualised in %s.eps'%(visualise_file))
+  visualise_nn(opt_nn, EXP_DIR + visualise_file)
 
   # N.B: See function nasbot and class NASBOT in opt/nasbot.py to customise additional
   # parameters of the algorithm.
@@ -92,3 +94,4 @@ def main():
 
 if __name__ == '__main__':
   main()
+

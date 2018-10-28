@@ -18,6 +18,7 @@ from opt.function_caller import EVAL_ERROR_CODE
 
 TIME_TOL = 1e-5
 
+
 class WorkerManager(object):
   """ A Base class for a worker manager. """
 
@@ -189,26 +190,26 @@ class RealWorkerManager(WorkerManager):
   """ A worker manager for resnet. """
   # pylint: disable=attribute-defined-outside-init
 
-  def __init__(self, worker_ids, poll_time=0.5):
+  def __init__(self, worker_ids, tmp_dir, poll_time=0.5):
     """ Constructor. """
     super(RealWorkerManager, self).__init__(worker_ids, poll_time)
+    self.tmp_dir = tmp_dir
     self._rwm_set_up()
     self._child_reset()
 
   def _rwm_set_up(self):
     """ Sets things up for the child. """
     # Create the result directories. """
-    self.result_dir_names = {wid:'exp/result_%s'%(str(wid)) for wid in
+    self.result_dir_names = {wid:'%s/result_%s'%(tmp_dir, str(wid)) for wid in
                                                       self.worker_ids}
     # Create the working directories
-    self.working_dir_names = {wid:'exp/working_%s/tmp'%(str(wid)) for wid in
+    self.working_dir_names = {wid:'%s/working_%s/tmp'%(tmp_dir, str(wid)) for wid in
                                                             self.worker_ids}
     # Create the last receive times
     self.last_receive_times = {wid:0.0 for wid in self.worker_ids}
     # Create file names
     self._result_file_name = 'result.txt'
     self._num_file_read_attempts = 10
-#     self._file_read_poll_time = 0.5 # wait for 0.5 seconds
 
   @classmethod
   def _delete_dirs(cls, list_of_dir_names):
