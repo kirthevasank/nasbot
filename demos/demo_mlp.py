@@ -45,13 +45,13 @@ MIN_NUM_UNITS_PER_LAYER = 8    # ... (neurons/conv-filters) per layer.
 
 # Which GPU IDs are available
 # GPU_IDS = [0, 1]
-# GPU_IDS = [2, 3]
-GPU_IDS = [1]
+GPU_IDS = [0, 3]
 
 # Where to store temporary model checkpoints
 EXP_DIR = 'mlp_experiment_dir_%s'%(time.strftime('%Y%m%d%H%M%S'))
 LOG_FILE = os.path.join(EXP_DIR, 'log')
 TMP_DIR = '/tmp'
+os.mkdir(EXP_DIR)
 
 # Function to return the name of the file containing dataset
 def get_train_file_name(dataset):
@@ -64,11 +64,11 @@ def get_train_file_name(dataset):
   return train_pickle_file
 
 # Specify the budget (in seconds)
-BUDGET = 2 * 60 * 60
+BUDGET = 2 * 24 * 60 * 60
 
 # Obtain a reporter object
 # REPORTER = get_reporter('default') # Writes results to stdout
-REPORTER = get_reporter(open('log_mlp', 'w')) # Writes to file log_mlp
+REPORTER = get_reporter(open(LOG_FILE, 'w')) # Writes to file log_mlp
 
 def main():
   """ Main function. """
@@ -93,7 +93,7 @@ def main():
                                      reporter=REPORTER)
 
   # Print the optimal value and visualise the best network.
-  REPORTER.writeln('\nOptimum value found: '%(opt_val))
+  REPORTER.writeln('\nOptimum value found: %0.5f'%(opt_val))
   visualise_file = os.path.join(EXP_DIR, 'mlp_optimal_network')
   REPORTER.writeln('Optimal network visualised in %s.eps.'%(visualise_file))
   visualise_nn(opt_nn, visualise_file)
