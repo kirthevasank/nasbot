@@ -22,7 +22,7 @@ from utils.reporters import get_reporter
 # and follow the instructions in
 # https://github.com/tensorflow/models/blob/master/tutorials/image/cifar10_estimator/generate_cifar10_tfrecords.p
 # Alternatively, they are available in the required format at
-# www.cs.cmu.edu/~kkandasa/research.html as examples.
+# www.cs.cmu.edu/~kkandasa/nasbot_datasets.html as examples.
 # Put the xxx.tfrecords in a directory named cifar-10-data in the demos directory to run
 # this demo.
 

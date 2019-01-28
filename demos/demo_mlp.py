@@ -22,7 +22,7 @@ from utils.reporters import get_reporter
 # For example, after data = pic.load(file_name), data['train']['x'] should point
 # to the features of the training data.
 # The slice and indoor_location datasets are available at
-# http://www.cs.cmu.edu/~kkandasa/research.html as examples. Put them in the demos
+# http://www.cs.cmu.edu/~kkandasa/nasbot_datasets.html as examples. Put them in the demos
 # directory to run the demo.
 
 # Results
